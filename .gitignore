@@ -1,0 +1,6 @@
+node_modules
+.env
+json_results/*
+csv_results/*
+!json_results/.gitkeep
+!csv_results/.gitkeep

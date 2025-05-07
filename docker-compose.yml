@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  yp-scraper:
+    build: .
+    ports:
+      - "3000:10000"
+    volumes:
+      - ./json_results:/app/json_results
+      - ./csv_results:/app/csv_results
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=10000
