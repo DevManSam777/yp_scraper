@@ -75,28 +75,25 @@
       nav button {
         background: none;
         border: none;
-        color: white;
+        color: var(--light-color);
         padding: 0.5rem 1rem;
         cursor: pointer;
         font-size: 0.9rem;
         border-radius: var(--border-radius);
         transition: var(--transition);
-        margin: 0 0.25rem;
-        background-color: rgba(255, 255, 255, 0.1);
       }
 
       nav button:hover {
-        background-color: rgba(255, 255, 255, 0.25);
+        background-color: rgba(255, 255, 255, 0.1);
       }
 
       nav button.active {
-        background-color: var(--primary-color);
-        color: black;
+        background-color: rgba(255, 255, 255, 0.2);
         font-weight: bold;
       }
 
       nav button i {
-        margin-inline: 5px;
+        margin-right: 5px;
       }
 
       main {
@@ -191,7 +188,7 @@
       }
 
       button i {
-        margin-right: 5px;
+        margin-inline: 5px;
       }
 
       button:hover {
@@ -330,7 +327,6 @@
         align-items: center;
         padding: 0.75rem;
         border-bottom: 1px solid var(--border-color);
-        background-color: #2a2a2a;
       }
 
       .file-info {
@@ -339,12 +335,11 @@
 
       .file-name {
         font-weight: 500;
-        color: #ffffff;
       }
 
       .file-meta {
         font-size: 0.8rem;
-        color: #cccccc;
+        color: #6c757d;
         margin-top: 0.25rem;
       }
 
@@ -467,8 +462,7 @@
 
       /* Results summary */
       .results-summary {
-        background-color: #2a2a2a;
-        color: #ffffff;
+        background-color: var(--light-color);
         padding: 1rem;
         border-radius: var(--border-radius);
         margin-bottom: 1rem;
@@ -493,7 +487,7 @@
       /* Dark mode styles */
       @media (prefers-color-scheme: dark) {
         :root {
-          --light-color: #f0f0f0;
+          --light-color: #323232;
           --dark-color: #f8f9fa;
           --border-color: #555;
         }
@@ -523,47 +517,6 @@
         .file-meta {
           color: #adb5bd;
         }
-
-        /* Improved nav visibility for dark mode */
-        nav {
-          background-color: #1a1a1a;
-        }
-
-        nav button {
-          color: white;
-          background-color: rgba(255, 255, 255, 0.15);
-        }
-
-        nav button:hover {
-          background-color: rgba(255, 255, 255, 0.3);
-        }
-
-        nav button.active {
-          background-color: var(--primary-color);
-          color: black;
-        }
-      }
-
-      /* Results tab styles improved visibility */
-      .results-summary {
-        background-color: #2a2a2a;
-        color: #ffffff;
-        padding: 1rem;
-        border-radius: var(--border-radius);
-        margin-bottom: 1rem;
-        text-align: center;
-      }
-
-      .business-item {
-        background-color: #2a2a2a;
-      }
-
-      .business-type {
-        color: #2fcef0;
-      }
-
-      .business-address {
-        color: #cccccc;
       }
     </style>
   </head>
