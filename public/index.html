@@ -96,7 +96,7 @@
       }
 
       nav button i {
-        margin-inline: 5px;
+        margin-right: 5px;
       }
 
       main {
@@ -191,7 +191,7 @@
       }
 
       button i {
-        margin-right: 5px;
+        margin-inline: 5px;
       }
 
       button:hover {
@@ -231,7 +231,9 @@
       .status-message {
         margin-top: 0.5rem;
         font-size: 0.9rem;
-        color: var(--secondary-color);
+        color: white !important;
+        text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        font-weight: 500;
       }
 
       /* Results list styles */
@@ -240,11 +242,12 @@
       }
 
       .business-item {
-        background-color: white;
+        background-color: #2a2a2a;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow);
         margin-bottom: 1rem;
         overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .business-header {
@@ -254,6 +257,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
       }
 
       .business-body {
@@ -262,17 +266,20 @@
 
       .business-type {
         font-size: 0.9rem;
-        color: var(--accent-color);
+        color: #2fcef0;
         margin-bottom: 0.5rem;
+        font-weight: 500;
       }
 
       .business-contact {
         margin: 0.5rem 0;
+        color: #ffffff;
       }
 
       .business-website a {
         color: var(--accent-color);
         text-decoration: none;
+        font-weight: 500;
       }
 
       .business-website a:hover {
@@ -281,7 +288,7 @@
 
       .business-address {
         margin-top: 0.5rem;
-        color: #6c757d;
+        color: #ffffff !important;
       }
 
       .business-actions {
@@ -487,6 +494,12 @@
         margin-bottom: 0.5rem;
       }
 
+      /* Progress container specific styles */
+      .progress-container .status-message {
+        color: white !important;
+        font-weight: 500;
+      }
+
       /* Responsive styles */
       @media (max-width: 768px) {
         header h1 {
@@ -512,7 +525,6 @@
         }
 
         .card,
-        .business-item,
         .modal-content {
           background-color: #333;
         }
@@ -522,10 +534,6 @@
           background-color: #444;
           border-color: #555;
           color: white;
-        }
-
-        .business-address {
-          color: #adb5bd;
         }
 
         .file-meta {
@@ -550,28 +558,49 @@
           background-color: var(--primary-color);
           color: black;
         }
+
+        .spinner {
+          border-color: rgba(255, 255, 255, 0.3);
+          border-top-color: white;
+        }
+
+        /* Additional dark mode fixes */
+        .modal-body {
+          color: white;
+        }
       }
 
-      /* Results tab styles improved visibility */
-      .results-summary {
-        background-color: #2a2a2a;
-        color: #ffffff;
-        padding: 1rem;
-        border-radius: var(--border-radius);
-        margin-bottom: 1rem;
-        text-align: center;
-      }
+      /* Light mode business info improvements */
+      @media (prefers-color-scheme: light) {
+        .business-item {
+          background-color: white;
+        }
 
-      .business-item {
-        background-color: #2a2a2a;
-      }
+        .business-contact,
+        .business-address {
+          color: #333 !important;
+          font-weight: 500;
+        }
 
-      .business-type {
-        color: #2fcef0;
-      }
+        .business-type {
+          color: #0a88a7;
+          font-weight: 600;
+        }
 
-      .business-address {
-        color: #cccccc;
+        /* Keep headers dark in light mode */
+        .business-header {
+          background-color: var(--secondary-color);
+          color: white;
+        }
+
+        /* Ensure status messages are visible in light mode */
+        .status-message {
+          color: #333 !important;
+        }
+
+        .progress-container .status-message {
+          color: #333 !important;
+        }
       }
     </style>
   </head>
@@ -1035,7 +1064,7 @@
               fileItem.innerHTML = `
               <div class="file-info">
                 <div class="file-name">${file.name}</div>
-                <div class="file-meta">${fileSize} • ${fileDate}</div>
+                <div class="file-meta">${fileSize} ??? ${fileDate}</div>
               </div>
               <div class="file-actions">
                 <button class="file-preview-btn" data-filename="${file.name}" data-format="${format}">
@@ -1436,11 +1465,6 @@
             <div class="business-address">${street}, ${city}, ${state} ${zip}</div>
             
             <div class="business-actions">
-              ${
-                phone
-                  ? `<a href="tel:${phone}" class="action-call"><i class="fas fa-phone"></i> Call</a>`
-                  : ""
-              }
               ${
                 website
                   ? `<a href="${website}" target="_blank" class="action-website"><i class="fas fa-globe"></i> Website</a>`
