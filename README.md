@@ -42,7 +42,7 @@ npm install
 mkdir -p json_results csv_results
 ```
 
-### Docker Installation (Recommended)
+### Docker Installation (From Docker Desktop)
 
 1. Clone the repository:
 ```bash
@@ -66,6 +66,7 @@ This will:
 1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
 2. Enable Email/Password authentication
 3. Register a web app in your Firebase project
+    - Add users manually from firebase console since we don't want sign ups via web app
 4. Update the Firebase configuration in:
    - `public/login.html`
    - `public/index.html` (logout functionality)
@@ -158,6 +159,8 @@ The web interface provides:
 ```
 
 ### CSV Format
+![CSV Image](public/assets/csv.png)
+
 Results are saved with the following columns:
 - Business Name
 - Business Type
