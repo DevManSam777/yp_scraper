@@ -466,9 +466,6 @@
       .modal-title {
         font-weight: bold;
         margin: 0;
-        overflow-wrap: break-word;
-        word-break: break-all;
-        white-space: normal;
       }
 
       .modal-close {
@@ -624,10 +621,6 @@
         .container p {
           font-size: 12px;
         }
-
-        .modal-title {
-          font-size: 14px;
-        }
       }
 
       /* Dark mode styles */
@@ -758,7 +751,14 @@
         <p>Find and collect business information on the go</p>
       </div>
     </header>
-
+    <div style="position: absolute; top: 10px; right: 15px">
+      <button
+        id="logoutBtn"
+        style="background: none; border: none; color: white; cursor: pointer"
+      >
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
     <nav>
       <button id="searchTabBtn" class="active">
         <i class="fas fa-search"></i> Search
@@ -1742,6 +1742,52 @@
 
       // Load files on startup
       loadFiles();
+    </script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script>
+      // Firebase configuration - Direct from your DevLeads project
+      const firebaseConfig = {
+        apiKey: "AIzaSyAYn9QN5sGdCRGxe7Nl8Md3ov5jCcEZZNs",
+        authDomain: "dev-leads-alpha.firebaseapp.com",
+        projectId: "dev-leads-alpha",
+        storageBucket: "dev-leads-alpha.appspot.com",
+        messagingSenderId: "563398115258",
+        appId: "1:563398115258:web:cc1c1eccc8fbe97a78d8d5",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // Check authentication
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) {
+          // No user signed in, redirect to login
+          window.location.href = "/login";
+        }
+      });
+
+      // Handle logout
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        // Show loading indicator
+        const logoutBtn = document.getElementById("logoutBtn");
+        const originalContent = logoutBtn.innerHTML;
+        logoutBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+
+        firebase
+          .auth()
+          .signOut()
+          .then(() => {
+            window.location.href = "/login";
+          })
+          .catch((error) => {
+            console.error("Logout error:", error);
+            // Restore button on error
+            logoutBtn.innerHTML = originalContent;
+          });
+      });
     </script>
   </body>
 </html>

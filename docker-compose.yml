@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   yp-scraper:
@@ -8,6 +8,7 @@ services:
     volumes:
       - ./json_results:/app/json_results
       - ./csv_results:/app/csv_results
+      - ./public:/app/public
     restart: unless-stopped
     environment:
       - NODE_ENV=production

@@ -17,6 +17,11 @@ app.use(express.static('public'));
 // Create scraper directory structure
 const scraper = new YellowPagesPuppeteerScraper();
 
+// Serve the login page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
 // Serve the HTML form
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -261,4 +266,10 @@ app.post('/api/cancel', (req, res) => {
 
 app.listen(port, () => {
   console.log(`YellowPages Scraper Web Interface running on port ${port}`);
+  console.log(`Access the app at: http://localhost:${port} (locally)`);
+  
+  // If we're on Render, show the external URL too
+  if (process.env.RENDER_EXTERNAL_URL) {
+    console.log(`Deployed at: ${process.env.RENDER_EXTERNAL_URL}`);
+  }
 });

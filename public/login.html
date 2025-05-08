@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YellowPages Scraper - Login</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #ffc107;
+        --secondary-color: #343a40;
+        --text-color: #333;
+        --background-color: #f8f9fa;
+        --card-background: #ffffff;
+        --error-color: #dc3545;
+        --border-color: #dee2e6;
+        --shadow-color: rgba(0, 0, 0, 0.08);
+        --input-background: #ffffff;
+        --input-border: #dee2e6;
+        --input-text: #333;
+        --icon-color: #999;
+        --forgot-password-color: #ffc107;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --primary-color: #ffc107;
+          --secondary-color: #2a2a2a;
+          --text-color: #f8f9fa;
+          --background-color: #1a1a1a;
+          --card-background: #2a2a2a;
+          --error-color: #dc3545;
+          --border-color: #444;
+          --shadow-color: rgba(0, 0, 0, 0.3);
+          --input-background: #333;
+          --input-border: #444;
+          --input-text: #f8f9fa;
+          --icon-color: #adb5bd;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: var(--background-color);
+        padding: 20px;
+      }
+
+      .login-container {
+        background: var(--card-background);
+        padding: 40px 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px var(--shadow-color);
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .login-logo {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .login-logo i {
+        font-size: 40px;
+        color: var(--primary-color);
+      }
+
+      .login-container h1 {
+        margin-bottom: 25px;
+        font-size: 1.8rem;
+        text-align: center;
+        color: var(--text-color);
+        position: relative;
+      }
+
+      .login-container h1::after {
+        content: "";
+        display: block;
+        width: 80px;
+        height: 3px;
+        background-color: var(--primary-color);
+        margin: 10px auto 0;
+        border-radius: 2px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-color);
+      }
+
+      .input-with-icon {
+        position: relative;
+      }
+
+      .input-with-icon input {
+        width: 100%;
+        padding: 12px 12px 12px 40px;
+        font-size: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        transition: border-color 0.2s;
+        background-color: var(--input-background);
+        color: var(--input-text);
+      }
+
+      .input-with-icon input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+      }
+
+      .input-with-icon i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: var(--icon-color);
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-color);
+        color: var(--secondary-color);
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: 10px;
+      }
+
+      .login-btn:hover {
+        background-color: #e0a800;
+      }
+
+      .error-message {
+        color: var(--error-color);
+        font-size: 0.875rem;
+        margin-bottom: 15px;
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgba(220, 53, 69, 0.08);
+        display: none;
+      }
+
+      .forgot-password {
+        display: block;
+        text-align: right;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        font-size: 0.875rem;
+        color: var(--forgot-password-color);
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .forgot-password:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 480px) {
+        .login-container {
+          padding: 30px 20px;
+        }
+
+        .input-with-icon input {
+          padding: 10px 10px 10px 36px;
+        }
+
+        .login-btn {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-logo">
+        <i class="fas fa-search"></i>
+      </div>
+      <h1>YellowPages Scraper</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <div class="input-with-icon">
+            <i class="fas fa-envelope"></i>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-with-icon">
+            <i class="fas fa-lock"></i>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <a class="forgot-password" id="forgotPasswordLink"
+            >Forgot password?</a
+          >
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+        <button type="submit" class="login-btn">Sign In</button>
+      </form>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <script>
+      // Firebase configuration - Direct from your DevLeads project
+      const firebaseConfig = {
+        apiKey: "AIzaSyAYn9QN5sGdCRGxe7Nl8Md3ov5jCcEZZNs",
+        authDomain: "dev-leads-alpha.firebaseapp.com",
+        projectId: "dev-leads-alpha",
+        storageBucket: "dev-leads-alpha.appspot.com",
+        messagingSenderId: "563398115258",
+        appId: "1:563398115258:web:cc1c1eccc8fbe97a78d8d5",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // DOM Elements
+      const loginForm = document.getElementById("loginForm");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const errorMessage = document.getElementById("errorMessage");
+      const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+
+      // Check if user is already signed in
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          // User is signed in, redirect to main app
+          window.location.href = "/";
+        }
+      });
+
+      // Handle login form submission
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        // Disable form during login attempt
+        const submitBtn = loginForm.querySelector("button[type='submit']");
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+        try {
+          // Sign in with email and password
+          await firebase.auth().signInWithEmailAndPassword(email, password);
+
+          // Successful login will trigger the onAuthStateChanged listener above
+          // which will redirect to the main app
+        } catch (error) {
+          // Show error message
+          console.error("Login error:", error);
+
+          errorMessage.textContent = getErrorMessage(error.code);
+          errorMessage.style.display = "block";
+
+          // Re-enable form
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "Sign In";
+        }
+      });
+
+      // Handle forgot password link
+      forgotPasswordLink.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+
+        if (!email) {
+          errorMessage.textContent = "Please enter your email address first.";
+          errorMessage.style.display = "block";
+          return;
+        }
+
+        try {
+          await firebase.auth().sendPasswordResetEmail(email);
+          errorMessage.textContent =
+            "Password reset email sent. Check your inbox.";
+          errorMessage.style.display = "block";
+          errorMessage.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
+          errorMessage.style.color = "#28a745";
+        } catch (error) {
+          errorMessage.textContent =
+            "Failed to send reset email. " + getErrorMessage(error.code);
+          errorMessage.style.display = "block";
+          errorMessage.style.backgroundColor = "rgba(220, 53, 69, 0.08)";
+          errorMessage.style.color = "#dc3545";
+        }
+      });
+
+      // Get user-friendly error messages
+      function getErrorMessage(errorCode) {
+        switch (errorCode) {
+          case "auth/wrong-password":
+            return "Invalid email or password.";
+          case "auth/user-not-found":
+            return "No user found with this email.";
+          case "auth/invalid-email":
+            return "Please enter a valid email address.";
+          case "auth/user-disabled":
+            return "This account has been disabled.";
+          case "auth/too-many-requests":
+            return "Too many unsuccessful login attempts. Please try again later.";
+          default:
+            return "An error occurred. Please try again later.";
+        }
+      }
+    </script>
+  </body>
+</html>
