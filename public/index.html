@@ -340,13 +340,20 @@
         background-color: #2a2a2a;
       }
 
+      /* FIX: File name overflow styles */
       .file-info {
         flex: 1;
+        max-width: 70%; /* Limit width to ensure space for buttons */
+        overflow: hidden; /* Hide overflow */
       }
 
       .file-name {
         font-weight: 500;
         color: #ffffff;
+        overflow-wrap: break-word; /* Modern version of word-wrap */
+        word-break: break-all; /* Ensures very long words will break */
+        white-space: normal; /* Allows text to wrap */
+        display: block; /* Ensures the element takes full width of parent */
       }
 
       .file-meta {
@@ -438,11 +445,12 @@
         justify-content: center;
       }
 
+      /* FIX: Updated modal content styles */
       .modal-content {
         background-color: white;
         border-radius: var(--border-radius);
-        width: 90%;
-        max-width: 500px;
+        width: 95%;
+        max-width: 800px;
         max-height: 90vh;
         overflow-y: auto;
       }
@@ -469,8 +477,11 @@
         line-height: 1;
       }
 
+      /* FIX: Updated modal body styles for scrolling */
       .modal-body {
         padding: 1rem;
+        max-height: 70vh;
+        overflow-y: auto;
       }
 
       .modal-footer {
@@ -478,6 +489,75 @@
         display: flex;
         justify-content: flex-end;
         gap: 0.5rem;
+      }
+
+      /* Container for the table that allows horizontal scrolling */
+      .table-scroll-container {
+        width: 100%;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      }
+
+      /* Table styling */
+      .csv-preview-table {
+        min-width: 100%;
+        border-collapse: collapse;
+        font-size: 14px; /* Base font size */
+        table-layout: auto; /* Let columns size based on content */
+        white-space: nowrap; /* Prevent text wrapping in cells */
+      }
+
+      .csv-preview-table th {
+        background-color: var(--secondary-color);
+        color: white;
+        text-align: left;
+        padding: 8px;
+        font-weight: bold;
+        border: 1px solid var(--border-color);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      .csv-preview-table td {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        max-width: 250px; /* Maximum width for any cell */
+        overflow: hidden;
+        text-overflow: ellipsis; /* Show ellipsis for overflowed content */
+      }
+
+      /* Special column handling */
+      .csv-preview-table .col-website {
+        min-width: 180px; /* Minimum width for website columns */
+      }
+
+      .csv-preview-table .col-address {
+        min-width: 150px; /* Minimum width for address columns */
+      }
+
+      .csv-preview-table .col-name {
+        min-width: 120px; /* Minimum width for name columns */
+      }
+
+      /* Zebra striping for rows */
+      .csv-preview-table tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      .csv-preview-table tr:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Make links stand out */
+      .csv-preview-table a {
+        color: var(--accent-color);
+        text-decoration: none;
+      }
+
+      .csv-preview-table a:hover {
+        text-decoration: underline;
       }
 
       /* Results summary */
@@ -508,6 +588,38 @@
 
         .business-actions {
           flex-direction: column;
+        }
+
+        .file-item {
+          flex-direction: column;
+          gap: 20px;
+          text-align: center;
+        }
+
+        .file-info {
+          max-width: 100%; /* Full width in mobile view */
+        }
+
+        .file-name {
+          font-size: 12px;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          word-break: break-all;
+        }
+
+        .csv-preview-table {
+          font-size: 12px; /* Smaller font on mobile */
+        }
+
+        .csv-preview-table th,
+        .csv-preview-table td {
+          padding: 6px; /* Less padding on mobile */
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container p {
+          font-size: 12px;
         }
       }
 
@@ -568,6 +680,16 @@
         .modal-body {
           color: white;
         }
+
+        /* FIX: Table styles for dark mode */
+        .csv-preview-table th {
+          background-color: #2a2a2a;
+          border-color: #444;
+        }
+
+        .csv-preview-table td {
+          border-color: #444;
+        }
       }
 
       /* Light mode business info improvements */
@@ -600,6 +722,24 @@
 
         .progress-container .status-message {
           color: #333 !important;
+        }
+
+        /* FIX: Table styles for light mode */
+        .csv-preview-table th {
+          background-color: var(--primary-color);
+          color: var(--dark-color);
+        }
+
+        .csv-preview-table td {
+          color: #333;
+        }
+
+        .csv-preview-table tr:nth-child(even) {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .csv-preview-table tr:hover {
+          background-color: rgba(0, 0, 0, 0.1);
         }
       }
     </style>
@@ -1064,7 +1204,7 @@
               fileItem.innerHTML = `
               <div class="file-info">
                 <div class="file-name">${file.name}</div>
-                <div class="file-meta">${fileSize} ??? ${fileDate}</div>
+                <div class="file-meta">${fileSize} - ${fileDate}</div>
               </div>
               <div class="file-actions">
                 <button class="file-preview-btn" data-filename="${file.name}" data-format="${format}">
@@ -1205,9 +1345,45 @@
           } else if (format === "csv") {
             const text = await response.text();
 
-            // Create preview for CSV
-            const lines = text.split("\n");
-            const headers = lines[0].split(",");
+            // Parse CSV properly, handling commas within quoted fields
+            function parseCSVLine(line) {
+              const result = [];
+              let cell = "";
+              let inQuotes = false;
+
+              for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                  // Handle quotes
+                  if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+                    // Escaped quote inside a quoted field
+                    cell += '"';
+                    i++; // Skip the next quote
+                  } else {
+                    // Toggle quote state
+                    inQuotes = !inQuotes;
+                  }
+                } else if (char === "," && !inQuotes) {
+                  // End of cell
+                  result.push(cell);
+                  cell = "";
+                } else {
+                  // Add character to current cell
+                  cell += char;
+                }
+              }
+
+              // Add the last cell
+              result.push(cell);
+              return result;
+            }
+
+            // Split into lines and clean up
+            const lines = text.split("\n").filter((line) => line.trim());
+
+            // Parse headers and data
+            const headers = parseCSVLine(lines[0]);
 
             if (lines.length <= 1) {
               filePreviewContent.innerHTML =
@@ -1217,38 +1393,105 @@
 
             // Show basic stats
             let previewHTML = `
-            <div class="results-summary">
-              <h3>${lines.length - 1} businesses found</h3>
-            </div>
-          `;
+              <div class="results-summary">
+                <h3>${lines.length - 1} businesses found</h3>
+              </div>
+            `;
 
-            // Show first 5 businesses
-            const previewLimit = Math.min(lines.length, 6); // Include header
+            // Show preview header
             previewHTML +=
               '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
 
-            // Create table
-            previewHTML +=
-              '<table style="width:100%; border-collapse:collapse;">';
+            // Determine preview limit
+            const previewLimit = Math.min(lines.length, 6); // Include header + 5 rows
+
+            // Create table with our new CSS class and horizontal scrolling container
+            previewHTML += '<div class="table-scroll-container">';
+            previewHTML += '<table class="csv-preview-table">';
 
             // Add header row
             previewHTML += "<tr>";
-            headers.forEach((header) => {
-              previewHTML += `<th style="text-align:left; padding:0.25rem; border-bottom:1px solid var(--border-color);">${header}</th>`;
+            headers.forEach((header, index) => {
+              // Clean up header text
+              const cleanHeader = header.replace(/^"(.*)"$/, "$1").trim();
+
+              // Determine column class based on header name
+              let colClass = "";
+              if (/website|url|web/i.test(cleanHeader)) {
+                colClass = "col-website";
+              } else if (/address|street|location/i.test(cleanHeader)) {
+                colClass = "col-address";
+              } else if (/name|business|company/i.test(cleanHeader)) {
+                colClass = "col-name";
+              }
+
+              previewHTML += `<th class="${colClass}">${cleanHeader}</th>`;
             });
             previewHTML += "</tr>";
 
             // Add data rows
             for (let i = 1; i < previewLimit; i++) {
-              const cells = lines[i].split(",");
+              if (i >= lines.length) break;
+
+              const cells = parseCSVLine(lines[i]);
               previewHTML += "<tr>";
-              cells.forEach((cell) => {
-                previewHTML += `<td style="padding:0.25rem;">${cell}</td>`;
+
+              cells.forEach((cell, index) => {
+                // Clean up cell text
+                const cleanCell = cell.replace(/^"(.*)"$/, "$1").trim();
+
+                // Determine column class based on header name if available
+                let colClass = "";
+                if (index < headers.length) {
+                  const headerText = headers[index]
+                    .replace(/^"(.*)"$/, "$1")
+                    .trim();
+                  if (/website|url|web/i.test(headerText)) {
+                    colClass = "col-website";
+                  } else if (/address|street|location/i.test(headerText)) {
+                    colClass = "col-address";
+                  } else if (/name|business|company/i.test(headerText)) {
+                    colClass = "col-name";
+                  }
+                }
+
+                // Handle different cell types differently
+                if (index < headers.length) {
+                  const headerText = headers[index]
+                    .replace(/^"(.*)"$/, "$1")
+                    .trim();
+
+                  if (
+                    /website|url|web/i.test(headerText) &&
+                    cleanCell.startsWith("http")
+                  ) {
+                    // Make websites clickable
+                    previewHTML += `<td class="${colClass}"><a href="${cleanCell}" target="_blank">${cleanCell}</a></td>`;
+                  } else if (/phone/i.test(headerText)) {
+                    // Format phone numbers consistently
+                    previewHTML += `<td class="${colClass}">${cleanCell}</td>`;
+                  } else {
+                    // Regular cell
+                    previewHTML += `<td class="${colClass}">${cleanCell}</td>`;
+                  }
+                } else {
+                  // Extra cell
+                  previewHTML += `<td>${cleanCell}</td>`;
+                }
               });
+
+              // Add empty cells if row has fewer cells than headers
+              if (cells.length < headers.length) {
+                for (let j = cells.length; j < headers.length; j++) {
+                  previewHTML += `<td></td>`;
+                }
+              }
+
               previewHTML += "</tr>";
             }
 
             previewHTML += "</table>";
+            previewHTML += "</div>"; // Close table-scroll-container
 
             if (lines.length > previewLimit) {
               previewHTML += `<div>... and ${
