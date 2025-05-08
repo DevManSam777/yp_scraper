@@ -4,6 +4,116 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YellowPages Scraper - Login</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <script>
+      // Firebase configuration - Direct from your DevLeads project
+      const firebaseConfig = {
+        apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
+        authDomain: "devleads-a1329.firebaseapp.com",
+        projectId: "devleads-a1329",
+        storageBucket: "devleads-a1329.firebasestorage.app",
+        messagingSenderId: "95407568917",
+        appId: "1:95407568917:web:db6424b8f1df724258361c",
+        measurementId: "G-47PSY58Q5P",
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // DOM Elements
+      const loginForm = document.getElementById("loginForm");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const errorMessage = document.getElementById("errorMessage");
+      const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+
+      // Check if user is already signed in
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          // User is signed in, redirect to main app
+          window.location.href = "/";
+        }
+      });
+
+      // Handle login form submission
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        // Disable form during login attempt
+        const submitBtn = loginForm.querySelector("button[type='submit']");
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+        try {
+          // Sign in with email and password
+          await firebase.auth().signInWithEmailAndPassword(email, password);
+
+          // Successful login will trigger the onAuthStateChanged listener above
+          // which will redirect to the main app
+        } catch (error) {
+          // Show error message
+          console.error("Login error:", error);
+
+          errorMessage.textContent = getErrorMessage(error.code);
+          errorMessage.style.display = "block";
+
+          // Re-enable form
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "Sign In";
+        }
+      });
+
+      // Handle forgot password link
+      forgotPasswordLink.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+
+        if (!email) {
+          errorMessage.textContent = "Please enter your email address first.";
+          errorMessage.style.display = "block";
+          return;
+        }
+
+        try {
+          await firebase.auth().sendPasswordResetEmail(email);
+          errorMessage.textContent =
+            "Password reset email sent. Check your inbox.";
+          errorMessage.style.display = "block";
+          errorMessage.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
+          errorMessage.style.color = "#28a745";
+        } catch (error) {
+          errorMessage.textContent =
+            "Failed to send reset email. " + getErrorMessage(error.code);
+          errorMessage.style.display = "block";
+          errorMessage.style.backgroundColor = "rgba(220, 53, 69, 0.08)";
+          errorMessage.style.color = "#dc3545";
+        }
+      });
+
+      // Get user-friendly error messages
+      function getErrorMessage(errorCode) {
+        switch (errorCode) {
+          case "auth/wrong-password":
+            return "Invalid email or password.";
+          case "auth/user-not-found":
+            return "No user found with this email.";
+          case "auth/invalid-email":
+            return "Please enter a valid email address.";
+          case "auth/user-disabled":
+            return "This account has been disabled.";
+          case "auth/too-many-requests":
+            return "Too many unsuccessful login attempts. Please try again later.";
+          default:
+            return "An error occurred. Please try again later.";
+        }
+      }
+    </script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -180,6 +290,23 @@
         text-decoration: underline;
       }
 
+      @media (max-width: 768px) {
+        header h1 {
+          margin-top: 30px;
+          font-size: 1.5rem;
+        }
+
+        header p {
+          font-size: 0.9rem;
+        }
+
+        #logoutBtn {
+          top: 5px;
+          right: 10px;
+          padding: 5px;
+        }
+      }
+
       @media (max-width: 480px) {
         .login-container {
           padding: 30px 20px;
@@ -191,6 +318,15 @@
 
         .login-btn {
           padding: 10px;
+        }
+
+        header h1 {
+          margin-top: 35px; /* Even more margin on very small screens */
+          font-size: 1.3rem;
+        }
+
+        header p {
+          font-size: 0.8rem;
         }
       }
     </style>
@@ -233,116 +369,5 @@
         <button type="submit" class="login-btn">Sign In</button>
       </form>
     </div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-
-    <script>
-      // Firebase configuration - Direct from your DevLeads project
-      const firebaseConfig = {
-        apiKey: "AIzaSyCtxxEU1DGzGJO83lquD4biAjPlRFMzq4E",
-        authDomain: "devleads-a1329.firebaseapp.com",
-        projectId: "devleads-a1329",
-        storageBucket: "devleads-a1329.firebasestorage.app",
-        messagingSenderId: "95407568917",
-        appId: "1:95407568917:web:db6424b8f1df724258361c",
-        measurementId: "G-47PSY58Q5P",
-      };
-
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-
-      // DOM Elements
-      const loginForm = document.getElementById("loginForm");
-      const emailInput = document.getElementById("email");
-      const passwordInput = document.getElementById("password");
-      const errorMessage = document.getElementById("errorMessage");
-      const forgotPasswordLink = document.getElementById("forgotPasswordLink");
-
-      // Check if user is already signed in
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          // User is signed in, redirect to main app
-          window.location.href = "/";
-        }
-      });
-
-      // Handle login form submission
-      loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-
-        // Disable form during login attempt
-        const submitBtn = loginForm.querySelector("button[type='submit']");
-        submitBtn.disabled = true;
-        submitBtn.innerHTML =
-          '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-
-        try {
-          // Sign in with email and password
-          await firebase.auth().signInWithEmailAndPassword(email, password);
-
-          // Successful login will trigger the onAuthStateChanged listener above
-          // which will redirect to the main app
-        } catch (error) {
-          // Show error message
-          console.error("Login error:", error);
-
-          errorMessage.textContent = getErrorMessage(error.code);
-          errorMessage.style.display = "block";
-
-          // Re-enable form
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = "Sign In";
-        }
-      });
-
-      // Handle forgot password link
-      forgotPasswordLink.addEventListener("click", async () => {
-        const email = emailInput.value.trim();
-
-        if (!email) {
-          errorMessage.textContent = "Please enter your email address first.";
-          errorMessage.style.display = "block";
-          return;
-        }
-
-        try {
-          await firebase.auth().sendPasswordResetEmail(email);
-          errorMessage.textContent =
-            "Password reset email sent. Check your inbox.";
-          errorMessage.style.display = "block";
-          errorMessage.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
-          errorMessage.style.color = "#28a745";
-        } catch (error) {
-          errorMessage.textContent =
-            "Failed to send reset email. " + getErrorMessage(error.code);
-          errorMessage.style.display = "block";
-          errorMessage.style.backgroundColor = "rgba(220, 53, 69, 0.08)";
-          errorMessage.style.color = "#dc3545";
-        }
-      });
-
-      // Get user-friendly error messages
-      function getErrorMessage(errorCode) {
-        switch (errorCode) {
-          case "auth/wrong-password":
-            return "Invalid email or password.";
-          case "auth/user-not-found":
-            return "No user found with this email.";
-          case "auth/invalid-email":
-            return "Please enter a valid email address.";
-          case "auth/user-disabled":
-            return "This account has been disabled.";
-          case "auth/too-many-requests":
-            return "Too many unsuccessful login attempts. Please try again later.";
-          default:
-            return "An error occurred. Please try again later.";
-        }
-      }
-    </script>
   </body>
 </html>
