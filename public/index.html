@@ -48,7 +48,6 @@
 
       header {
         background-color: var(--primary-color);
-        color: var(--dark-color);
         text-align: center;
         padding: 1rem 0;
         box-shadow: var(--shadow);
@@ -63,6 +62,17 @@
         margin-top: 0.5rem;
         font-size: 1rem;
         opacity: 0.8;
+      }
+
+      #logoutBtn,
+      #searchBtn,
+      header,
+      .card-header,
+      .range-value,
+      .modal-close,
+      .file-actions button,
+      .modal-footer button {
+        color: #1a1a1a !important;
       }
 
       nav {
@@ -350,11 +360,11 @@
 
       .file-name {
         font-weight: 500;
-        color: #ffffff;
-        overflow-wrap: break-word; /* Modern version of word-wrap */
-        word-break: break-all; /* Ensures very long words will break */
-        white-space: normal; /* Allows text to wrap */
-        display: block; /* Ensures the element takes full width of parent */
+        color: var(--primary-color);
+        overflow-wrap: break-word;
+        word-break: break-all;
+        white-space: normal;
+        display: block;
       }
 
       .file-meta {
@@ -467,6 +477,10 @@
       .modal-title {
         font-weight: bold;
         margin: 0;
+        color: #1a1a1a;
+        overflow-wrap: break-word;
+        word-break: break-all;
+        white-space: normal;
       }
 
       .modal-close {
@@ -626,6 +640,10 @@
 
         header h1 {
           margin-top: 35px;
+        }
+
+        .modal-title {
+          font-size: 14px;
         }
       }
 

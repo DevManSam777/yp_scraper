@@ -7,8 +7,6 @@ A Node.js application for scraping business information from YellowPages.com. Av
 - **User Authentication**:
   - Firebase email/password login
   - Password reset functionality
-  - Protected application routes
-  - Clean, pretty URLs (/login, /)
 - **Search Capabilities**:
   - Search for businesses by type and location
   - Collect information like:
