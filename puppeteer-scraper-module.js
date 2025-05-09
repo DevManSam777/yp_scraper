@@ -9,8 +9,8 @@ class YellowPagesPuppeteerScraper {
   constructor(statusCallback = null) {
     this.baseUrl = 'https://www.yellowpages.com';
     this.resultsPerPage = 30; // YellowPages typically shows 30 results per page
-    this.maxRetries = 5; // max retries per page if blocked
-    this.retryDelayMs = 10000; //  delay between retries (for blocking on a single page)
+    this.maxRetries = 3; // max retries per page if blocked
+    this.retryDelayMs = 5000; //  delay between retries (for blocking on a single page)
     this.maxResultsLimit = 300; // set an upper limit on the total number of results to collect
     this.jsonDir = 'json_results';
     this.csvDir = 'csv_results';
