@@ -272,23 +272,24 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
 
-      // Redirect to main page if already logged in
+      // Redirect to main app if already logged in (updated path)
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          // Replace current history entry with main page
-          window.history.replaceState(null, "", "/");
-          window.location.href = "/";
+          // Updated: Now redirecting to /app instead of / path
+          window.history.replaceState(null, "", "/app");
+          window.location.href = "/app";
         }
       });
 
       // Handle login form submission
       const loginForm = document.getElementById("loginForm");
       const errorMessage = document.getElementById("errorMessage");
+      const emailInput = document.getElementById("email");
 
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const email = document.getElementById("email").value.trim();
+        const email = emailInput.value.trim();
         const password = document.getElementById("password").value;
 
         // Disable form during login attempt
@@ -304,11 +305,11 @@
           // Sign in with email and password
           await signInWithEmailAndPassword(auth, email, password);
 
-          // Replace current history entry with main page
-          window.history.replaceState(null, "", "/");
+          // Updated: Now redirecting to /app instead of / path
+          window.history.replaceState(null, "", "/app");
 
           // Navigate to main page
-          window.location.href = "/";
+          window.location.href = "/app";
         } catch (error) {
           // Show error message
           console.error("Login error:", error);
@@ -323,6 +324,7 @@
       });
 
       // Handle forgot password link
+      const forgotPasswordLink = document.getElementById("forgotPasswordLink");
       forgotPasswordLink.addEventListener("click", async () => {
         const email = emailInput.value.trim();
 

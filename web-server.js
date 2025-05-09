@@ -12,19 +12,32 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Create app directory if it doesn't exist
+const appDir = path.join(__dirname, "public", "app");
+if (!fs.existsSync(appDir)) {
+  fs.mkdirSync(appDir, { recursive: true });
+}
+
+// Serve static files from public folder
 app.use(express.static("public"));
 
 // Create scraper directory structure
 const scraper = new YellowPagesPuppeteerScraper();
 
-// Serve the login page
+// Serve the login page (stays in public root)
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
-// Serve the HTML form
+// Serve the main app (now from /app directory)
+app.get("/app", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "app", "index.html"));
+});
+
+// Redirect root to login page by default (prevents the flash of content)
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.redirect("/login");
 });
 
 // API endpoint to get search status
@@ -278,9 +291,10 @@ app.post("/api/cancel", (req, res) => {
   }
 });
 
+// Catch all other routes and redirect to login
 app.use((req, res, next) => {
   // Skip for API or static file routes
-  if (req.url.startsWith("/api/") || req.url.includes(".")) {
+  if (req.url.startsWith("/api/") || req.url.startsWith("/download/") || req.url.includes(".")) {
     return next();
   }
 

@@ -4,15 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YellowPages Mobile Scraper</title>
-    <script>
-      // Hide the body initially until auth state is determined
-      document.body.style.display = "none";
-    </script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="icon" href="assets/yellow_book.png" />
+    <link rel="icon" href="../assets/yellow_book.png" />
     <style>
       :root {
         --primary-color: #ffc107;
@@ -1806,7 +1802,7 @@
       // Check authentication state before showing content
       onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // Not logged in - replace current history entry with login page
+          // Not logged in - redirect to login page
           window.history.replaceState(null, "", "/login");
           window.location.href = "/login";
         } else {
@@ -1826,7 +1822,7 @@
         auth
           .signOut()
           .then(() => {
-            // Replace current history entry with login page
+            // Redirect to login page
             window.history.replaceState(null, "", "/login");
             window.location.href = "/login";
           })
