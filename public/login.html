@@ -247,8 +247,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
-    <script>
-      // Firebase configuration - Direct from your DevLeads project
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        browserSessionPersistence,
+        setPersistence,
+        sendPasswordResetEmail,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+      // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyCrfRmWqJ3SZqwuSdffAXJIf3ZeyCTPljc",
         authDomain: "yp-web-scraper.firebaseapp.com",
@@ -259,29 +269,27 @@
       };
 
       // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
 
-      // DOM Elements
-      const loginForm = document.getElementById("loginForm");
-      const emailInput = document.getElementById("email");
-      const passwordInput = document.getElementById("password");
-      const errorMessage = document.getElementById("errorMessage");
-      const forgotPasswordLink = document.getElementById("forgotPasswordLink");
-
-      // Check if user is already signed in
-      firebase.auth().onAuthStateChanged((user) => {
+      // Redirect to main page if already logged in
+      onAuthStateChanged(auth, (user) => {
         if (user) {
-          // User is signed in, redirect to main app
+          // Replace current history entry with main page
+          window.history.replaceState(null, "", "/");
           window.location.href = "/";
         }
       });
 
       // Handle login form submission
+      const loginForm = document.getElementById("loginForm");
+      const errorMessage = document.getElementById("errorMessage");
+
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
         // Disable form during login attempt
         const submitBtn = loginForm.querySelector("button[type='submit']");
@@ -290,11 +298,17 @@
           '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
         try {
-          // Sign in with email and password
-          await firebase.auth().signInWithEmailAndPassword(email, password);
+          // Set persistence and then sign in
+          await setPersistence(auth, browserSessionPersistence);
 
-          // Successful login will trigger the onAuthStateChanged listener above
-          // which will redirect to the main app
+          // Sign in with email and password
+          await signInWithEmailAndPassword(auth, email, password);
+
+          // Replace current history entry with main page
+          window.history.replaceState(null, "", "/");
+
+          // Navigate to main page
+          window.location.href = "/";
         } catch (error) {
           // Show error message
           console.error("Login error:", error);
@@ -319,7 +333,7 @@
         }
 
         try {
-          await firebase.auth().sendPasswordResetEmail(email);
+          await sendPasswordResetEmail(auth, email);
           errorMessage.textContent =
             "Password reset email sent. Check your inbox.";
           errorMessage.style.display = "block";

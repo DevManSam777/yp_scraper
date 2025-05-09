@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YellowPages Mobile Scraper</title>
+    <script>
+      // Hide the body initially until auth state is determined
+      document.body.style.display = "none";
+    </script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -74,7 +78,7 @@
       .modal-close,
       .file-actions button,
       .modal-footer button,
-      a.action-map  {
+      a.action-map {
         color: #1a1a1a !important;
       }
 
@@ -1773,8 +1777,16 @@
     <!-- Firebase Authentication -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script>
-      // Firebase configuration - Direct from your DevLeads project
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        browserSessionPersistence,
+        setPersistence,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+      // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyCrfRmWqJ3SZqwuSdffAXJIf3ZeyCTPljc",
         authDomain: "yp-web-scraper.firebaseapp.com",
@@ -1785,13 +1797,21 @@
       };
 
       // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
 
-      // Check authentication
-      firebase.auth().onAuthStateChanged((user) => {
+      // Set session persistence
+      setPersistence(auth, browserSessionPersistence);
+
+      // Check authentication state before showing content
+      onAuthStateChanged(auth, (user) => {
         if (!user) {
-          // No user signed in, redirect to login
+          // Not logged in - replace current history entry with login page
+          window.history.replaceState(null, "", "/login");
           window.location.href = "/login";
+        } else {
+          // Logged in - show the page content
+          document.body.style.display = "block";
         }
       });
 
@@ -1803,10 +1823,11 @@
         logoutBtn.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i> Logging out...';
 
-        firebase
-          .auth()
+        auth
           .signOut()
           .then(() => {
+            // Replace current history entry with login page
+            window.history.replaceState(null, "", "/login");
             window.location.href = "/login";
           })
           .catch((error) => {
