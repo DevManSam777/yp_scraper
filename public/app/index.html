@@ -354,11 +354,10 @@
         background-color: #2a2a2a;
       }
 
-      /* FIX: File name overflow styles */
       .file-info {
         flex: 1;
-        max-width: 70%; /* Limit width to ensure space for buttons */
-        overflow: hidden; /* Hide overflow */
+        max-width: 70%; 
+        overflow: hidden;
       }
 
       .file-name {
@@ -459,12 +458,11 @@
         justify-content: center;
       }
 
-      /* FIX: Updated modal content styles */
+  
       .modal-content {
         background-color: white;
         border-radius: var(--border-radius);
         width: 95%;
-        max-width: 800px;
         max-height: 90vh;
         overflow-y: auto;
       }
@@ -495,7 +493,6 @@
         line-height: 1;
       }
 
-      /* FIX: Updated modal body styles for scrolling */
       .modal-body {
         padding: 1rem;
         max-height: 70vh;
@@ -509,21 +506,21 @@
         gap: 0.5rem;
       }
 
-      /* Container for the table that allows horizontal scrolling */
+      /* container for the table that allows horizontal scrolling */
       .table-scroll-container {
         width: 100%;
         overflow-x: auto;
         margin-bottom: 1rem;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
       }
 
       /* Table styling */
       .csv-preview-table {
         min-width: 100%;
         border-collapse: collapse;
-        font-size: 14px; /* Base font size */
-        table-layout: auto; /* Let columns size based on content */
-        white-space: nowrap; /* Prevent text wrapping in cells */
+        font-size: 14px; 
+        table-layout: auto; /* let columns size based on content */
+        white-space: nowrap; /* prevent text wrapping in cells */
       }
 
       .csv-preview-table th {
@@ -541,22 +538,21 @@
       .csv-preview-table td {
         padding: 8px;
         border: 1px solid var(--border-color);
-        max-width: 250px; /* Maximum width for any cell */
+        max-width: 250px;
         overflow: hidden;
-        text-overflow: ellipsis; /* Show ellipsis for overflowed content */
+        text-overflow: ellipsis; 
       }
 
-      /* Special column handling */
       .csv-preview-table .col-website {
-        min-width: 180px; /* Minimum width for website columns */
+        min-width: 180px; 
       }
 
       .csv-preview-table .col-address {
-        min-width: 150px; /* Minimum width for address columns */
+        min-width: 150px; 
       }
 
       .csv-preview-table .col-name {
-        min-width: 120px; /* Minimum width for name columns */
+        min-width: 120px; 
       }
 
       /* Zebra striping for rows */
@@ -592,7 +588,7 @@
         margin-bottom: 0.5rem;
       }
 
-      /* Progress container specific styles */
+  
       .progress-container .status-message {
         color: white !important;
         font-weight: 500;
@@ -616,7 +612,7 @@
         }
 
         .file-info {
-          max-width: 100%; /* Full width in mobile view */
+          max-width: 100%; 
         }
 
         .file-name {
@@ -627,12 +623,12 @@
         }
 
         .csv-preview-table {
-          font-size: 12px; /* Smaller font on mobile */
+          font-size: 12px; 
         }
 
         .csv-preview-table th,
         .csv-preview-table td {
-          padding: 6px; /* Less padding on mobile */
+          padding: 6px;
         }
       }
 
@@ -679,7 +675,7 @@
           color: #adb5bd;
         }
 
-        /* Improved nav visibility for dark mode */
+  
         nav {
           background-color: #1a1a1a;
         }
@@ -703,12 +699,11 @@
           border-top-color: white;
         }
 
-        /* Additional dark mode fixes */
         .modal-body {
           color: white;
         }
 
-        /* FIX: Table styles for dark mode */
+    
         .csv-preview-table th {
           background-color: #2a2a2a;
           border-color: #444;
@@ -719,7 +714,7 @@
         }
       }
 
-      /* Light mode business info improvements */
+    
       @media (prefers-color-scheme: light) {
         .business-item {
           background-color: white;
@@ -736,13 +731,12 @@
           font-weight: 600;
         }
 
-        /* Keep headers dark in light mode */
         .business-header {
           background-color: var(--secondary-color);
           color: white;
         }
 
-        /* Ensure status messages are visible in light mode */
+
         .status-message {
           color: #333 !important;
         }
@@ -751,7 +745,6 @@
           color: #333 !important;
         }
 
-        /* FIX: Table styles for light mode */
         .csv-preview-table th {
           background-color: var(--primary-color);
           color: var(--dark-color);
@@ -1340,31 +1333,84 @@
 
               // Show basic stats
               let previewHTML = `
-              <div class="results-summary">
-                <h3>${results.length} businesses found</h3>
-              </div>
-            `;
+        <div class="results-summary">
+          <h3>${results.length} businesses found</h3>
+        </div>
+      `;
 
-              // Show first 5 businesses
-              const previewLimit = Math.min(results.length, 5);
+              // Show preview header
               previewHTML +=
                 '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
 
+              // Create a table view similar to CSV display
+              previewHTML += '<div class="table-scroll-container">';
+              previewHTML += '<table class="csv-preview-table">';
+
+              // Add header row based on the first result's properties
+              const firstBusiness = results[0];
+              const headers = Object.keys(firstBusiness);
+
+              previewHTML += "<tr>";
+              headers.forEach((header) => {
+                // Determine column class based on header name
+                let colClass = "";
+                if (/website|url|web/i.test(header)) {
+                  colClass = "col-website";
+                } else if (/address|street|location/i.test(header)) {
+                  colClass = "col-address";
+                } else if (/name|business|company/i.test(header)) {
+                  colClass = "col-name";
+                }
+
+                // Convert camelCase to Title Case for headers
+                const displayHeader = header
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (str) => str.toUpperCase());
+
+                previewHTML += `<th class="${colClass}">${displayHeader}</th>`;
+              });
+              previewHTML += "</tr>";
+
+              // Add data rows
+              const previewLimit = Math.min(results.length, 5);
               for (let i = 0; i < previewLimit; i++) {
                 const business = results[i];
-                previewHTML += `
-                <div style="margin-bottom:1rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border-color);">
-                  <div style="font-weight:bold;">${business.businessName}</div>
-                  <div>${business.businessType || "N/A"}</div>
-                  <div>${business.phone || "No phone"} | ${
-                  business.website ? "Has website" : "No website"
-                }</div>
-                  <div>${business.streetAddress}, ${business.city}, ${
-                  business.state
-                } ${business.zipCode}</div>
-                </div>
-              `;
+                previewHTML += "<tr>";
+
+                headers.forEach((header) => {
+                  // Determine column class based on header name
+                  let colClass = "";
+                  if (/website|url|web/i.test(header)) {
+                    colClass = "col-website";
+                  } else if (/address|street|location/i.test(header)) {
+                    colClass = "col-address";
+                  } else if (/name|business|company/i.test(header)) {
+                    colClass = "col-name";
+                  }
+
+                  const value = business[header] || "";
+
+                  // Handle different cell types differently
+                  if (
+                    /website|url|web/i.test(header) &&
+                    value.startsWith("http")
+                  ) {
+                    // Make websites clickable
+                    previewHTML += `<td class="${colClass}"><a href="${value}" target="_blank">${value}</a></td>`;
+                  } else if (/phone/i.test(header)) {
+                    // Format phone numbers consistently
+                    previewHTML += `<td class="${colClass}">${value}</td>`;
+                  } else {
+                    // Regular cell
+                    previewHTML += `<td class="${colClass}">${value}</td>`;
+                  }
+                });
+
+                previewHTML += "</tr>";
               }
+
+              previewHTML += "</table>";
+              previewHTML += "</div>"; // Close table-scroll-container
 
               if (results.length > previewLimit) {
                 previewHTML += `<div>... and ${
@@ -1427,10 +1473,10 @@
 
             // Show basic stats
             let previewHTML = `
-              <div class="results-summary">
-                <h3>${lines.length - 1} businesses found</h3>
-              </div>
-            `;
+        <div class="results-summary">
+          <h3>${lines.length - 1} businesses found</h3>
+        </div>
+      `;
 
             // Show preview header
             previewHTML +=
