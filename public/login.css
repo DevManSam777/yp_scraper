@@ -78,7 +78,7 @@ body {
 .login-container h1::after {
   content: "";
   display: block;
-  width: 80px;
+  width: 120px;
   height: 3px;
   background-color: var(--primary-color);
   margin: 10px auto 0;
