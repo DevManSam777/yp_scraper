@@ -157,7 +157,7 @@ The web interface provides:
 ```
 
 ### CSV Format
-![CSV Image](public/assets/csv.png)
+![CSV Image](public/assets/csv.webp)
 
 Results are saved with the following columns:
 - Business Name
