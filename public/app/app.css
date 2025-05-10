@@ -640,13 +640,18 @@ button:disabled {
     font-size: 16px;
   }
 
-  .results-summary h3 span {
+  .results-summary h3 span,
+  .sorted-text {
     display: block;
     font-size: 12px;
   }
 
   .preview-header {
     font-size: 14px;
+  }
+
+  #more-entries-container {
+    font-size: 12px;
   }
 }
 
