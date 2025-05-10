@@ -79,12 +79,15 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
 
-      // Redirect to main app if already logged in (updated path)
+      // Flag to prevent multiple redirects
+      let isRedirecting = false;
+
+      // Redirect to main app if already logged in
       onAuthStateChanged(auth, (user) => {
-        if (user) {
-          // Updated: Now redirecting to /app instead of / path
-          window.history.replaceState(null, "", "/app");
-          window.location.href = "/app";
+        if (user && !isRedirecting) {
+          isRedirecting = true;
+          // Use location.replace to avoid history stack issues
+          window.location.replace("/app");
         }
       });
 
@@ -95,6 +98,8 @@
 
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        if (isRedirecting) return;
 
         const email = emailInput.value.trim();
         const password = document.getElementById("password").value;
@@ -112,15 +117,14 @@
           // Sign in with email and password
           await signInWithEmailAndPassword(auth, email, password);
 
-          // Updated: Now redirecting to /app instead of / path
-          window.history.replaceState(null, "", "/app");
+          // Set redirecting flag to prevent duplicate redirects
+          isRedirecting = true;
 
-          // Navigate to main page
-          window.location.href = "/app";
+          // Navigate to main page - use replace instead of history manipulation
+          window.location.replace("/app");
         } catch (error) {
           // Show error message
           console.error("Login error:", error);
-
           errorMessage.textContent = getErrorMessage(error.code);
           errorMessage.style.display = "block";
 

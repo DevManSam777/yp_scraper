@@ -207,56 +207,53 @@
       // Set session persistence
       setPersistence(auth, browserSessionPersistence);
 
-      // State flag to prevent multiple redirects
+      // State flags to prevent multiple redirects and track authentication check
       let isRedirecting = false;
+      let authChecked = false;
 
       // Hide content initially (redundant, but a safeguard)
       if (document.body.style.display !== "none") {
         document.body.style.display = "none";
       }
 
-      // We'll check auth state with a short delay to prevent flash
-      const checkAuthWithDelay = () => {
-        // First, check if we already have a current user synchronized
+      // Check auth state with a more reliable approach for mobile
+      function checkAuth() {
+        // Check for current user (might be synchronously available)
         if (auth.currentUser) {
-          // User is already logged in, show content immediately
           document.body.style.display = "block";
+          authChecked = true;
           return;
         }
 
-        // Set a timeout to ensure we redirect if auth check takes too long
+        // Set a timeout to prevent hanging indefinitely
         const authTimeout = setTimeout(() => {
-          // If body is still hidden and we're not already redirecting
-          if (document.body.style.display === "none" && !isRedirecting) {
+          if (!authChecked && !isRedirecting) {
+            console.log("Auth check timed out, redirecting to login");
             isRedirecting = true;
-
-            // Important: Use replaceState to preserve back button behavior
-            window.history.replaceState(null, "", "/login");
-            window.location.href = "/login";
+            window.location.replace("/login");
           }
-        }, 500);
+        }, 3000); // Increased timeout for slower mobile connections
 
-        // Also set up the auth state listener
+        // Set up auth state listener
         onAuthStateChanged(auth, (user) => {
-          // Clear the timeout since auth state is now determined
           clearTimeout(authTimeout);
+          authChecked = true;
 
-          if (isRedirecting) return; // Prevent multiple redirects
+          if (isRedirecting) return;
 
           if (!user) {
             // Not logged in - redirect to login with replaceState
             isRedirecting = true;
-            window.history.replaceState(null, "", "/login");
-            window.location.href = "/login";
+            window.location.replace("/login");
           } else {
             // Logged in - show the page content
             document.body.style.display = "block";
           }
         });
-      };
+      }
 
       // Start the auth check process
-      checkAuthWithDelay();
+      checkAuth();
 
       // Handle logout
       document.getElementById("logoutBtn")?.addEventListener("click", () => {
@@ -275,8 +272,7 @@
           .signOut()
           .then(() => {
             // Use replaceState to preserve back button behavior
-            window.history.replaceState(null, "", "/login");
-            window.location.href = "/login";
+            window.location.replace("/login");
           })
           .catch((error) => {
             console.error("Logout error:", error);

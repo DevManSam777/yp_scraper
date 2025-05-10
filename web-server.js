@@ -309,7 +309,10 @@ app.post("/api/cancel", (req, res) => {
 // Catch all other routes and redirect to login
 app.use((req, res, next) => {
   // Skip for API or static file routes
-  if (req.url.startsWith("/api/") || req.url.startsWith("/download/") || req.url.includes(".")) {
+  if (req.url.startsWith("/api/") || 
+      req.url.startsWith("/download/") || 
+      req.url.includes(".") ||
+      req.method !== "GET") {
     return next();
   }
 
