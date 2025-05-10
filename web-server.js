@@ -84,17 +84,32 @@ app.post("/api/search", async (req, res) => {
     totalBusinesses = 0,
     error = null
   ) => {
+    // Always update message
     searchStatus.statusMessage = message;
-    if (page > 0) searchStatus.currentPage = page;
-    if (totalBusinesses > 0) searchStatus.totalBusinesses = totalBusinesses;
-    if (error) searchStatus.error = error;
+    
+    // Only update page if provided and greater than current
+    if (page > 0) {
+      searchStatus.currentPage = page;
+    }
+    
+    // Only update total businesses if provided and greater than current
+    if (totalBusinesses > 0 && totalBusinesses > searchStatus.totalBusinesses) {
+      searchStatus.totalBusinesses = totalBusinesses;
+    }
+    
+    if (error) {
+      searchStatus.error = error;
+    }
 
-    // Calculate progress percentage (estimate)
+    // Calculate progress based on current/target ratio
+    // This will only grow, never reset
     const targetResults = parseInt(numResults, 10);
-    searchStatus.progress = Math.min(
-      Math.floor((totalBusinesses / targetResults) * 100),
-      99
-    );
+    if (searchStatus.totalBusinesses > 0) {
+      searchStatus.progress = Math.min(
+        Math.floor((searchStatus.totalBusinesses / targetResults) * 100),
+        99
+      );
+    }
   };
 
   // Start the search asynchronously

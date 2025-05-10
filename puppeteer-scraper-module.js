@@ -294,7 +294,7 @@ class YellowPagesPuppeteerScraper {
         console.error(`Page ${pageNumber}: Error or Blocked -`, error.message);
         attempts++;
 
-        // Update status about retries
+        // Update status about retries - DON'T PASS PAGE OR BUSINESS COUNT
         if (this.statusCallback) {
           this.statusCallback(
             `Retry ${attempts}/${this.maxRetries} for page ${pageNumber}...`
@@ -339,9 +339,9 @@ class YellowPagesPuppeteerScraper {
     try {
       console.log("Launching browser...");
 
-      // Update status if callback provided
+      // Update status if callback provided - ONLY PASS MESSAGE
       if (this.statusCallback) {
-        this.statusCallback("Launching browser...", 0, 0);
+        this.statusCallback("Launching browser...");
       }
 
       browser = await puppeteer.launch({
@@ -367,13 +367,9 @@ class YellowPagesPuppeteerScraper {
 
       console.log(`Scraping for up to ${effectiveTargetResults} results...`);
 
-      // Update status if callback provided
+      // Update status if callback provided - ONLY PASS MESSAGE
       if (this.statusCallback) {
-        this.statusCallback(
-          `Searching for "${query}" in "${location}"...`,
-          0,
-          0
-        );
+        this.statusCallback(`Searching for "${query}" in "${location}"...`);
       }
 
       while (
@@ -436,7 +432,7 @@ class YellowPagesPuppeteerScraper {
             `Current total unique businesses collected: ${allBusinesses.length}`
           );
 
-          // Update status if callback provided
+          // Update status if callback provided - PASS PAGE AND BUSINESS COUNT
           if (this.statusCallback) {
             this.statusCallback(
               `Found ${allBusinesses.length} businesses so far...`,
@@ -569,222 +565,221 @@ class YellowPagesPuppeteerScraper {
             fs.statSync(path.join(directory, file)).isFile()
         )
         .sort();
-    } catch (error) {
-      console.error(`Error listing files: ${error.message}`);
-      return [];
-    }
+    } catch (error) {console.error(`Error listing files: ${error.message}`);
+    return [];
   }
+}
 
-  loadExistingResults(filename, extension) {
-    try {
-      // get the full file path including the appropriate directory
-      const directory = extension === "json" ? this.jsonDir : this.csvDir;
-      const fullPath = path.join(directory, filename);
+loadExistingResults(filename, extension) {
+  try {
+    // get the full file path including the appropriate directory
+    const directory = extension === "json" ? this.jsonDir : this.csvDir;
+    const fullPath = path.join(directory, filename);
 
-      if (fs.existsSync(fullPath)) {
-        // for JSON files, parse the content
-        if (extension === "json") {
-          const data = fs.readFileSync(fullPath, "utf8");
+    if (fs.existsSync(fullPath)) {
+      // for JSON files, parse the content
+      if (extension === "json") {
+        const data = fs.readFileSync(fullPath, "utf8");
 
-          // check if the file is empty or contains only whitespace
-          if (!data || data.trim() === "") {
-            console.log(
-              `Existing results file '${filename}' is empty or contains only whitespace.`
-            );
-            return []; // return empty array if file is empty
-          }
-
-          const json = JSON.parse(data);
-
-          // ensure the parsed data is an array
-          if (!Array.isArray(json)) {
-            console.log(
-              `Existing results file '${filename}' does not contain a valid JSON array. Starting fresh.`
-            );
-            return []; // if not a valid array, treat as invalid and return empty
-          }
-
+        // check if the file is empty or contains only whitespace
+        if (!data || data.trim() === "") {
           console.log(
-            `Loaded ${json.length} existing results from '${filename}'.`
+            `Existing results file '${filename}' is empty or contains only whitespace.`
           );
-          return json; // return the parsed array
+          return []; // return empty array if file is empty
         }
 
-        // for CSV files, indicate that the file exists but return empty array
-        // since we'll handle CSV appending differently
-        console.log(`Found existing CSV file '${filename}'.`);
-        return [];
-      } else {
+        const json = JSON.parse(data);
+
+        // ensure the parsed data is an array
+        if (!Array.isArray(json)) {
+          console.log(
+            `Existing results file '${filename}' does not contain a valid JSON array. Starting fresh.`
+          );
+          return []; // if not a valid array, treat as invalid and return empty
+        }
+
         console.log(
-          `Existing results file '${filename}' not found. Starting fresh.`
+          `Loaded ${json.length} existing results from '${filename}'.`
         );
-        return []; // return empty array if file doesn't exist
+        return json; // return the parsed array
       }
-    } catch (error) {
+
+      // for CSV files, indicate that the file exists but return empty array
+      // since we'll handle CSV appending differently
+      console.log(`Found existing CSV file '${filename}'.`);
+      return [];
+    } else {
       console.log(
-        `Error loading existing results from '${filename}': ${error.message}. Starting fresh.`
+        `Existing results file '${filename}' not found. Starting fresh.`
       );
-      return []; // return empty array on any parsing or reading error
+      return []; // return empty array if file doesn't exist
     }
+  } catch (error) {
+    console.log(
+      `Error loading existing results from '${filename}': ${error.message}. Starting fresh.`
+    );
+    return []; // return empty array on any parsing or reading error
   }
+}
 
-  mergeResults(existing, newResults) {
-    // ensure existing is an array before proceeding
-    const merged = Array.isArray(existing) ? [...existing] : [];
+mergeResults(existing, newResults) {
+  // ensure existing is an array before proceeding
+  const merged = Array.isArray(existing) ? [...existing] : [];
 
-    // create a unique key set using a combination of key fields for existing data
-    // ensure consistent fields are used for generating keys for existing data
-    const existingSet = new Set(
-      merged.map((b) => {
-        // use parsed/cleaned data for consistency
-        const phone = this.parsePhone(b.phoneText || b.phone); // Try both potential phone fields
-        const addressComponents = this.parseAddress(
-          b.fullAddress || `${b.streetAddress}, ${b.city}`
-        ); // Try both potential address fields
-        return `${b.businessName}-${phone}-${addressComponents.streetAddress}`.toLowerCase();
-      })
+  // create a unique key set using a combination of key fields for existing data
+  // ensure consistent fields are used for generating keys for existing data
+  const existingSet = new Set(
+    merged.map((b) => {
+      // use parsed/cleaned data for consistency
+      const phone = this.parsePhone(b.phoneText || b.phone); // Try both potential phone fields
+      const addressComponents = this.parseAddress(
+        b.fullAddress || `${b.streetAddress}, ${b.city}`
+      ); // Try both potential address fields
+      return `${b.businessName}-${phone}-${addressComponents.streetAddress}`.toLowerCase();
+    })
+  );
+
+  let addedCount = 0;
+  const uniqueNewResults = []; // Use a temporary array to collect unique new results
+
+  newResults.forEach((newBusiness) => {
+    // ensure parsed fields are available for key generation for new business
+    const phone = this.parsePhone(newBusiness.phoneText || newBusiness.phone);
+    const addressComponents = this.parseAddress(
+      newBusiness.fullAddress ||
+        `${newBusiness.streetAddress}, ${newBusiness.city}`
     );
 
-    let addedCount = 0;
-    const uniqueNewResults = []; // Use a temporary array to collect unique new results
+    // create a unique key for the new business using consistent parsed fields
+    const key =
+      `${newBusiness.businessName}-${phone}-${addressComponents.streetAddress}`.toLowerCase();
 
-    newResults.forEach((newBusiness) => {
-      // ensure parsed fields are available for key generation for new business
-      const phone = this.parsePhone(newBusiness.phoneText || newBusiness.phone);
-      const addressComponents = this.parseAddress(
-        newBusiness.fullAddress ||
-          `${newBusiness.streetAddress}, ${newBusiness.city}`
-      );
+    // check for duplicates based on the unique key and ensure business name exists
+    // only add if not a duplicate AND has a business name
+    if (newBusiness.businessName && !existingSet.has(key)) {
+      // add the business with parsed/cleaned up fields to the unique new results list
+      uniqueNewResults.push({
+        businessName: newBusiness.businessName,
+        businessType: newBusiness.businessType,
+        phone: phone,
+        website: newBusiness.website,
+        streetAddress: addressComponents.streetAddress,
+        city: addressComponents.city,
+        state: addressComponents.state,
+        zipCode: addressComponents.zipCode,
+      });
+      existingSet.add(key); // check against subsequent new results in the same batch
+      addedCount++;
+    }
+  });
 
-      // create a unique key for the new business using consistent parsed fields
-      const key =
-        `${newBusiness.businessName}-${phone}-${addressComponents.streetAddress}`.toLowerCase();
+  // concatenate the unique new results to the merged array
+  merged.push(...uniqueNewResults);
 
-      // check for duplicates based on the unique key and ensure business name exists
-      // only add if not a duplicate AND has a business name
-      if (newBusiness.businessName && !existingSet.has(key)) {
-        // add the business with parsed/cleaned up fields to the unique new results list
-        uniqueNewResults.push({
-          businessName: newBusiness.businessName,
-          businessType: newBusiness.businessType,
-          phone: phone,
-          website: newBusiness.website,
-          streetAddress: addressComponents.streetAddress,
-          city: addressComponents.city,
-          state: addressComponents.state,
-          zipCode: addressComponents.zipCode,
-        });
-        existingSet.add(key); // check against subsequent new results in the same batch
-        addedCount++;
-      }
-    });
+  console.log(`Merged ${addedCount} new unique businesses.`);
+  return merged; // return the combined array
+}
 
-    // concatenate the unique new results to the merged array
-    merged.push(...uniqueNewResults);
+exportToJSON(businesses, filename, append = false) {
+  // get the full path for the file
+  const fullPath = path.join(this.jsonDir, filename);
+  let finalBusinesses = businesses;
 
-    console.log(`Merged ${addedCount} new unique businesses.`);
-    return merged; // return the combined array
+  if (append) {
+    // load existing data first
+    const existing = this.loadExistingResults(filename, "json");
+    // then merge the new businesses with the existing ones
+    finalBusinesses = this.mergeResults(existing, businesses);
   }
 
-  exportToJSON(businesses, filename, append = false) {
-    // get the full path for the file
-    const fullPath = path.join(this.jsonDir, filename);
-    let finalBusinesses = businesses;
+  const jsonContent = JSON.stringify(finalBusinesses, null, 2);
 
-    if (append) {
-      // load existing data first
-      const existing = this.loadExistingResults(filename, "json");
-      // then merge the new businesses with the existing ones
-      finalBusinesses = this.mergeResults(existing, businesses);
+  try {
+    // make sure the directory exists
+    if (!fs.existsSync(this.jsonDir)) {
+      fs.mkdirSync(this.jsonDir, { recursive: true });
     }
 
-    const jsonContent = JSON.stringify(finalBusinesses, null, 2);
+    // write the file
+    fs.writeFileSync(fullPath, jsonContent, "utf8");
+    console.log(
+      `Results saved to '${filename}' in ${this.jsonDir} directory (Total: ${finalBusinesses.length} businesses)`
+    );
+  } catch (error) {
+    console.error(`Error writing JSON file '${filename}': ${error.message}`);
+  }
+}
 
-    try {
-      // make sure the directory exists
-      if (!fs.existsSync(this.jsonDir)) {
-        fs.mkdirSync(this.jsonDir, { recursive: true });
-      }
+exportToCSV(businesses, filename, append = false) {
+  const headers = [
+    "Business Name",
+    "Business Type",
+    "Phone",
+    "Website",
+    "Street Address",
+    "City",
+    "State",
+    "ZIP Code",
+  ];
 
-      // write the file
-      fs.writeFileSync(fullPath, jsonContent, "utf8");
-      console.log(
-        `Results saved to '${filename}' in ${this.jsonDir} directory (Total: ${finalBusinesses.length} businesses)`
-      );
-    } catch (error) {
-      console.error(`Error writing JSON file '${filename}': ${error.message}`);
-    }
+  // get the full path for the file
+  const fullPath = path.join(this.csvDir, filename);
+  const fileExists = fs.existsSync(fullPath);
+  let csvContent = "";
+
+  // if NOT appending OR the file does NOT exist, write headers
+  if (!append || !fileExists) {
+    csvContent = headers.join(",") + "\n";
   }
 
-  exportToCSV(businesses, filename, append = false) {
-    const headers = [
-      "Business Name",
-      "Business Type",
-      "Phone",
-      "Website",
-      "Street Address",
-      "City",
-      "State",
-      "ZIP Code",
+  businesses.forEach((business) => {
+    // ensure the business object has all the required fields before trying to access them
+    const row = [
+      this.escapeCSV(business.businessName || ""),
+      this.escapeCSV(business.businessType || ""),
+      this.escapeCSV(business.phone || ""),
+      this.escapeCSV(business.website || ""),
+      this.escapeCSV(business.streetAddress || ""),
+      this.escapeCSV(business.city || ""),
+      this.escapeCSV(business.state || ""),
+      this.escapeCSV(business.zipCode || ""),
     ];
 
-    // get the full path for the file
-    const fullPath = path.join(this.csvDir, filename);
-    const fileExists = fs.existsSync(fullPath);
-    let csvContent = "";
+    csvContent += row.join(",") + "\n";
+  });
 
-    // if NOT appending OR the file does NOT exist, write headers
-    if (!append || !fileExists) {
-      csvContent = headers.join(",") + "\n";
+  try {
+    // make sure the directory exists
+    if (!fs.existsSync(this.csvDir)) {
+      fs.mkdirSync(this.csvDir, { recursive: true });
     }
 
-    businesses.forEach((business) => {
-      // ensure the business object has all the required fields before trying to access them
-      const row = [
-        this.escapeCSV(business.businessName || ""),
-        this.escapeCSV(business.businessType || ""),
-        this.escapeCSV(business.phone || ""),
-        this.escapeCSV(business.website || ""),
-        this.escapeCSV(business.streetAddress || ""),
-        this.escapeCSV(business.city || ""),
-        this.escapeCSV(business.state || ""),
-        this.escapeCSV(business.zipCode || ""),
-      ];
-
-      csvContent += row.join(",") + "\n";
-    });
-
-    try {
-      // make sure the directory exists
-      if (!fs.existsSync(this.csvDir)) {
-        fs.mkdirSync(this.csvDir, { recursive: true });
-      }
-
-      if (append && fileExists) {
-        fs.appendFileSync(fullPath, csvContent, "utf8");
-        console.log(
-          `Results appended to '${filename}' in ${this.csvDir} directory`
-        );
-      } else {
-        fs.writeFileSync(fullPath, csvContent, "utf8");
-        console.log(
-          `Results saved to '${filename}' in ${this.csvDir} directory`
-        );
-      }
-    } catch (error) {
-      console.error(`Error writing CSV file '${filename}': ${error.message}`);
+    if (append && fileExists) {
+      fs.appendFileSync(fullPath, csvContent, "utf8");
+      console.log(
+        `Results appended to '${filename}' in ${this.csvDir} directory`
+      );
+    } else {
+      fs.writeFileSync(fullPath, csvContent, "utf8");
+      console.log(
+        `Results saved to '${filename}' in ${this.csvDir} directory`
+      );
     }
+  } catch (error) {
+    console.error(`Error writing CSV file '${filename}': ${error.message}`);
   }
+}
 
-  escapeCSV(value) {
-    if (value === null || value === undefined) return '""'; // handle null or undefined
-    const stringValue = String(value);
-    // check if value contains comma, double quote, newline, or starts/ends with whitespace
-    if (/[,"\n]/.test(stringValue) || stringValue.trim() !== stringValue) {
-      return `"${stringValue.replace(/"/g, '""')}"`;
-    }
-    return stringValue;
+escapeCSV(value) {
+  if (value === null || value === undefined) return '""'; // handle null or undefined
+  const stringValue = String(value);
+  // check if value contains comma, double quote, newline, or starts/ends with whitespace
+  if (/[,"\n]/.test(stringValue) || stringValue.trim() !== stringValue) {
+    return `"${stringValue.replace(/"/g, '""')}"`;
   }
+  return stringValue;
+}
 }
 
 module.exports = YellowPagesPuppeteerScraper;
