@@ -468,7 +468,7 @@ class YellowPagesPuppeteerScraper {
         //     `Delay ended. Actual delay: ${actualDelay / 1000} seconds.`
         //   );
         // }
-        console.log("Inter-page delay commented out.  If queries begin failing, uncomment it");
+        console.log("Inter-page delay commented out.  If queries begin failing, uncomment it in puppeteer-scraper-module.js and uncomment inter-page delay console log in puppeteer-scraper-cli.js");
 
         pageNum++; // move to the next page
       }

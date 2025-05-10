@@ -63,10 +63,11 @@ async function main() {
       )} results...\n`
     );
 
+    // uncomment this if you want reinstitute inter-page delays
     // Inter-page delay log
-    console.log(
-      `Using inter-page delays of ${2500 / 1000}-${5000 / 1000} seconds.`
-    );
+    // console.log(
+    //   `Using inter-page delays of ${2500 / 1000}-${5000 / 1000} seconds.`
+    // );
 
     const businesses = await scraper.search(query, location, targetResults);
 
