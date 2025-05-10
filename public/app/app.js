@@ -358,70 +358,499 @@
       fileFormatFilter.addEventListener("change", loadFiles);
 
       // Preview file
-      async function previewFile(filename, format) {
-        try {
-          // Set modal title
-          filePreviewTitle.textContent = filename;
+      // async function previewFile(filename, format) {
+      //   try {
+      //     // Set modal title
+      //     filePreviewTitle.textContent = filename;
 
-          // Show loading in modal
+      //     // Show loading in modal
+      //     filePreviewContent.innerHTML =
+      //       '<div style="text-align:center;"><div class="spinner"></div> Loading preview...</div>';
+
+      //     // Show modal
+      //     filePreviewModal.style.display = "flex";
+
+      //     // Set download button link
+      //     filePreviewDownloadBtn.setAttribute("data-filename", filename);
+      //     filePreviewDownloadBtn.setAttribute("data-format", format);
+
+      //     // Fetch file content
+      //     const response = await fetch(`/api/results/${format}/${filename}`);
+
+      //     if (!response.ok) {
+      //       filePreviewContent.innerHTML = `<div style="color:red;">Error: ${response.status} ${response.statusText}</div>`;
+      //       return;
+      //     }
+
+      //     if (format === "json") {
+      //       const data = await response.json();
+
+      //       if (data.success) {
+      //         // Create preview content for JSON
+      //         let results = data.results;
+
+      //         if (results.length === 0) {
+      //           filePreviewContent.innerHTML =
+      //             "<div>No results in this file</div>";
+      //           return;
+      //         }
+
+      //         // Sort results alphabetically by business name
+      //         results.sort((a, b) => {
+      //           return (a.businessName || "").localeCompare(
+      //             b.businessName || ""
+      //           );
+      //         });
+
+      //         // Show basic stats
+      //         let previewHTML = `
+      //   <div class="results-summary">
+      //     <h3>${results.length} businesses found (sorted alphabetically)</h3>
+      //   </div>
+      // `;
+
+      //         // Show preview header
+      //         previewHTML +=
+      //           '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
+
+      //         // Create a table view similar to CSV display
+      //         previewHTML += '<div class="table-scroll-container">';
+      //         previewHTML += '<table class="csv-preview-table">';
+
+      //         // Add header row based on the first result's properties
+      //         const firstBusiness = results[0];
+      //         const headers = Object.keys(firstBusiness);
+
+      //         previewHTML += "<tr>";
+      //         headers.forEach((header) => {
+      //           // Determine column class based on header name
+      //           let colClass = "";
+      //           if (/website|url|web/i.test(header)) {
+      //             colClass = "col-website";
+      //           } else if (/address|street|location/i.test(header)) {
+      //             colClass = "col-address";
+      //           } else if (/name|business|company/i.test(header)) {
+      //             colClass = "col-name";
+      //           }
+
+      //           // Convert camelCase to Title Case for headers
+      //           const displayHeader = header
+      //             .replace(/([A-Z])/g, " $1")
+      //             .replace(/^./, (str) => str.toUpperCase());
+
+      //           previewHTML += `<th class="${colClass}">${displayHeader}</th>`;
+      //         });
+      //         previewHTML += "</tr>";
+
+      //         // Add data rows
+      //         const previewLimit = Math.min(results.length, 5);
+      //         for (let i = 0; i < previewLimit; i++) {
+      //           const business = results[i];
+      //           previewHTML += "<tr>";
+
+      //           headers.forEach((header) => {
+      //             // Determine column class based on header name
+      //             let colClass = "";
+      //             if (/website|url|web/i.test(header)) {
+      //               colClass = "col-website";
+      //             } else if (/address|street|location/i.test(header)) {
+      //               colClass = "col-address";
+      //             } else if (/name|business|company/i.test(header)) {
+      //               colClass = "col-name";
+      //             }
+
+      //             const value = business[header] || "";
+
+      //             // Handle different cell types differently
+      //             if (
+      //               /website|url|web/i.test(header) &&
+      //               value.startsWith("http")
+      //             ) {
+      //               // Make websites clickable
+      //               previewHTML += `<td class="${colClass}"><a href="${value}" target="_blank">${value}</a></td>`;
+      //             } else if (/phone/i.test(header)) {
+      //               // Format phone numbers consistently
+      //               previewHTML += `<td class="${colClass}">${value}</td>`;
+      //             } else {
+      //               // Regular cell
+      //               previewHTML += `<td class="${colClass}">${value}</td>`;
+      //             }
+      //           });
+
+      //           previewHTML += "</tr>";
+      //         }
+
+      //         previewHTML += "</table>";
+      //         previewHTML += "</div>"; // Close table-scroll-container
+
+      //         if (results.length > previewLimit) {
+      //           previewHTML += `<div>... and ${
+      //             results.length - previewLimit
+      //           } more entries</div>`;
+      //         }
+
+      //         filePreviewContent.innerHTML = previewHTML;
+      //       } else {
+      //         filePreviewContent.innerHTML = `<div style="color:red;">Error: ${data.error}</div>`;
+      //       }
+      //     } else if (format === "csv") {
+      //       const text = await response.text();
+
+      //       // Parse CSV properly, handling commas within quoted fields
+      //       function parseCSVLine(line) {
+      //         const result = [];
+      //         let cell = "";
+      //         let inQuotes = false;
+
+      //         for (let i = 0; i < line.length; i++) {
+      //           const char = line[i];
+
+      //           if (char === '"') {
+      //             // Handle quotes
+      //             if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+      //               // Escaped quote inside a quoted field
+      //               cell += '"';
+      //               i++; // Skip the next quote
+      //             } else {
+      //               // Toggle quote state
+      //               inQuotes = !inQuotes;
+      //             }
+      //           } else if (char === "," && !inQuotes) {
+      //             // End of cell
+      //             result.push(cell);
+      //             cell = "";
+      //           } else {
+      //             // Add character to current cell
+      //             cell += char;
+      //           }
+      //         }
+
+      //         // Add the last cell
+      //         result.push(cell);
+      //         return result;
+      //       }
+
+      //       // Split into lines and clean up
+      //       const lines = text.split("\n").filter((line) => line.trim());
+
+      //       // Parse headers and data
+      //       const headers = parseCSVLine(lines[0]);
+
+      //       if (lines.length <= 1) {
+      //         filePreviewContent.innerHTML =
+      //           "<div>No results in this file</div>";
+      //         return;
+      //       }
+
+      //       // Parse the data into objects for sorting
+      //       const businesses = [];
+      //       for (let i = 1; i < lines.length; i++) {
+      //         if (!lines[i].trim()) continue;
+
+      //         const cells = parseCSVLine(lines[i]);
+      //         const business = {};
+
+      //         headers.forEach((header, index) => {
+      //           if (index < cells.length) {
+      //             // Clean the cell value
+      //             business[header.replace(/^"(.*)"$/, "$1").trim()] = cells[
+      //               index
+      //             ]
+      //               .replace(/^"(.*)"$/, "$1")
+      //               .trim();
+      //           } else {
+      //             business[header.replace(/^"(.*)"$/, "$1").trim()] = "";
+      //           }
+      //         });
+
+      //         businesses.push(business);
+      //       }
+
+      //       // Sort businesses alphabetically by Business Name
+      //       businesses.sort((a, b) => {
+      //         const nameA = a["Business Name"] || "";
+      //         const nameB = b["Business Name"] || "";
+      //         return nameA.localeCompare(nameB);
+      //       });
+
+      //       // Show basic stats
+      //       let previewHTML = `
+      //   <div class="results-summary">
+      //     <h3>${businesses.length} businesses found (sorted alphabetically)</h3>
+      //   </div>
+      // `;
+
+      //       // Show preview header
+      //       previewHTML +=
+      //         '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
+
+      //       // Determine preview limit
+      //       const previewLimit = Math.min(businesses.length, 5);
+
+      //       // Create table with our new CSS class and horizontal scrolling container
+      //       previewHTML += '<div class="table-scroll-container">';
+      //       previewHTML += '<table class="csv-preview-table">';
+
+      //       // Add header row
+      //       previewHTML += "<tr>";
+      //       headers.forEach((header, index) => {
+      //         // Clean up header text
+      //         const cleanHeader = header.replace(/^"(.*)"$/, "$1").trim();
+
+      //         // Determine column class based on header name
+      //         let colClass = "";
+      //         if (/website|url|web/i.test(cleanHeader)) {
+      //           colClass = "col-website";
+      //         } else if (/address|street|location/i.test(cleanHeader)) {
+      //           colClass = "col-address";
+      //         } else if (/name|business|company/i.test(cleanHeader)) {
+      //           colClass = "col-name";
+      //         }
+
+      //         previewHTML += `<th class="${colClass}">${cleanHeader}</th>`;
+      //       });
+      //       previewHTML += "</tr>";
+
+      //       // Add data rows for the sorted businesses
+      //       for (let i = 0; i < previewLimit; i++) {
+      //         if (i >= businesses.length) break;
+
+      //         const business = businesses[i];
+      //         previewHTML += "<tr>";
+
+      //         headers.forEach((header, index) => {
+      //           // Clean up header text
+      //           const headerText = header.replace(/^"(.*)"$/, "$1").trim();
+
+      //           // Get the cell value
+      //           const cellValue = business[headerText] || "";
+
+      //           // Determine column class based on header name
+      //           let colClass = "";
+      //           if (/website|url|web/i.test(headerText)) {
+      //             colClass = "col-website";
+      //           } else if (/address|street|location/i.test(headerText)) {
+      //             colClass = "col-address";
+      //           } else if (/name|business|company/i.test(headerText)) {
+      //             colClass = "col-name";
+      //           }
+
+      //           // Handle different cell types differently
+      //           if (
+      //             /website|url|web/i.test(headerText) &&
+      //             cellValue.startsWith("http")
+      //           ) {
+      //             // Make websites clickable
+      //             previewHTML += `<td class="${colClass}"><a href="${cellValue}" target="_blank">${cellValue}</a></td>`;
+      //           } else if (/phone/i.test(headerText)) {
+      //             // Format phone numbers consistently
+      //             previewHTML += `<td class="${colClass}">${cellValue}</td>`;
+      //           } else {
+      //             // Regular cell
+      //             previewHTML += `<td class="${colClass}">${cellValue}</td>`;
+      //           }
+      //         });
+
+      //         previewHTML += "</tr>";
+      //       }
+
+      //       previewHTML += "</table>";
+      //       previewHTML += "</div>"; // Close table-scroll-container
+
+      //       if (businesses.length > previewLimit) {
+      //         previewHTML += `<div>... and ${
+      //           businesses.length - previewLimit
+      //         } more entries</div>`;
+      //       }
+
+      //       filePreviewContent.innerHTML = previewHTML;
+      //     }
+      //   } catch (error) {
+      //     filePreviewContent.innerHTML = `<div style="color:red;">Error: ${
+      //       error.message || "Failed to load preview"
+      //     }</div>`;
+      //   }
+      // }
+
+      // Fixed version - this replaces the entire previewFile function in public/app/app.js
+async function previewFile(filename, format) {
+  try {
+    // Set modal title
+    filePreviewTitle.textContent = filename;
+
+    // Show loading in modal
+    filePreviewContent.innerHTML =
+      '<div style="text-align:center;"><div class="spinner"></div> Loading preview...</div>';
+
+    // Show modal
+    filePreviewModal.style.display = "flex";
+
+    // Set download button link
+    filePreviewDownloadBtn.setAttribute("data-filename", filename);
+    filePreviewDownloadBtn.setAttribute("data-format", format);
+
+    // Create variables to store data for later use with "show more" functionality
+    let allResults = [];
+    let allBusinesses = [];
+
+    // Fetch file content
+    const response = await fetch(`/api/results/${format}/${filename}`);
+
+    if (!response.ok) {
+      filePreviewContent.innerHTML = `<div style="color:red;">Error: ${response.status} ${response.statusText}</div>`;
+      return;
+    }
+
+    if (format === "json") {
+      const data = await response.json();
+
+      if (data.success) {
+        // Store all results for later use
+        allResults = data.results;
+        
+        // Create preview content for JSON
+        let results = data.results;
+
+        if (results.length === 0) {
           filePreviewContent.innerHTML =
-            '<div style="text-align:center;"><div class="spinner"></div> Loading preview...</div>';
+            "<div>No results in this file</div>";
+          return;
+        }
 
-          // Show modal
-          filePreviewModal.style.display = "flex";
+        // Sort results alphabetically by business name
+        results.sort((a, b) => {
+          return (a.businessName || "").localeCompare(
+            b.businessName || ""
+          );
+        });
 
-          // Set download button link
-          filePreviewDownloadBtn.setAttribute("data-filename", filename);
-          filePreviewDownloadBtn.setAttribute("data-format", format);
+        // Show basic stats
+        let previewHTML = `
+  <div class="results-summary">
+    <h3>${results.length} businesses found <span class="sorted-text">(sorted alphabetically)</span></h3>
+  </div>
+`;
 
-          // Fetch file content
-          const response = await fetch(`/api/results/${format}/${filename}`);
+        // Show preview header
+        previewHTML +=
+          '<div class="preview-header" style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
 
-          if (!response.ok) {
-            filePreviewContent.innerHTML = `<div style="color:red;">Error: ${response.status} ${response.statusText}</div>`;
-            return;
+        // Create a table view similar to CSV display
+        previewHTML += '<div class="table-scroll-container">';
+        previewHTML += '<table class="csv-preview-table">';
+
+        // Add header row based on the first result's properties
+        const firstBusiness = results[0];
+        const headers = Object.keys(firstBusiness);
+
+        previewHTML += "<tr>";
+        headers.forEach((header) => {
+          // Determine column class based on header name
+          let colClass = "";
+          if (/website|url|web/i.test(header)) {
+            colClass = "col-website";
+          } else if (/address|street|location/i.test(header)) {
+            colClass = "col-address";
+          } else if (/name|business|company/i.test(header)) {
+            colClass = "col-name";
           }
 
-          if (format === "json") {
-            const data = await response.json();
+          // Convert camelCase to Title Case for headers
+          const displayHeader = header
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase());
 
-            if (data.success) {
-              // Create preview content for JSON
-              let results = data.results;
+          previewHTML += `<th class="${colClass}">${displayHeader}</th>`;
+        });
+        previewHTML += "</tr>";
 
-              if (results.length === 0) {
-                filePreviewContent.innerHTML =
-                  "<div>No results in this file</div>";
-                return;
+        // Add data rows
+        const previewLimit = Math.min(results.length, 5);
+        for (let i = 0; i < previewLimit; i++) {
+          const business = results[i];
+          previewHTML += "<tr>";
+
+          headers.forEach((header) => {
+            // Determine column class based on header name
+            let colClass = "";
+            if (/website|url|web/i.test(header)) {
+              colClass = "col-website";
+            } else if (/address|street|location/i.test(header)) {
+              colClass = "col-address";
+            } else if (/name|business|company/i.test(header)) {
+              colClass = "col-name";
+            }
+
+            const value = business[header] || "";
+
+            // Handle different cell types differently
+            if (
+              /website|url|web/i.test(header) &&
+              value.startsWith("http")
+            ) {
+              // Make websites clickable
+              previewHTML += `<td class="${colClass}"><a href="${value}" target="_blank">${value}</a></td>`;
+            } else if (/phone/i.test(header)) {
+              // Format phone numbers consistently
+              previewHTML += `<td class="${colClass}">${value}</td>`;
+            } else {
+              // Regular cell
+              previewHTML += `<td class="${colClass}">${value}</td>`;
+            }
+          });
+
+          previewHTML += "</tr>";
+        }
+
+        previewHTML += "</table>";
+        previewHTML += "</div>"; // Close table-scroll-container
+
+        if (results.length > previewLimit) {
+          const remainingCount = results.length - previewLimit;
+          previewHTML += `<div style="margin-top: 15px;" id="more-entries-container">... and <a href="#" id="show-more-entries" style="color: #ffc107; text-decoration: underline; font-weight: bold;">${remainingCount} more entries</a></div>`;
+        }
+
+        filePreviewContent.innerHTML = previewHTML;
+        
+        // Add event listener for "show more entries" directly after setting the HTML
+        const showMoreLink = document.getElementById("show-more-entries");
+        if (showMoreLink) {
+          showMoreLink.addEventListener("click", function(e) {
+            e.preventDefault();
+            
+            // Get the table container
+            const tableContainer = document.querySelector(".table-scroll-container");
+            if (!tableContainer) return;
+            
+            // Create a new table with all entries
+            let newTableHTML = '<table class="csv-preview-table">';
+            
+            // Add header row
+            newTableHTML += "<tr>";
+            headers.forEach((header) => {
+              // Determine column class based on header name
+              let colClass = "";
+              if (/website|url|web/i.test(header)) {
+                colClass = "col-website";
+              } else if (/address|street|location/i.test(header)) {
+                colClass = "col-address";
+              } else if (/name|business|company/i.test(header)) {
+                colClass = "col-name";
               }
 
-              // Sort results alphabetically by business name
-              results.sort((a, b) => {
-                return (a.businessName || "").localeCompare(
-                  b.businessName || ""
-                );
-              });
+              // Convert camelCase to Title Case for headers
+              const displayHeader = header
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase());
 
-              // Show basic stats
-              let previewHTML = `
-        <div class="results-summary">
-          <h3>${results.length} businesses found (sorted alphabetically)</h3>
-        </div>
-      `;
-
-              // Show preview header
-              previewHTML +=
-                '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
-
-              // Create a table view similar to CSV display
-              previewHTML += '<div class="table-scroll-container">';
-              previewHTML += '<table class="csv-preview-table">';
-
-              // Add header row based on the first result's properties
-              const firstBusiness = results[0];
-              const headers = Object.keys(firstBusiness);
-
-              previewHTML += "<tr>";
+              newTableHTML += `<th class="${colClass}">${displayHeader}</th>`;
+            });
+            newTableHTML += "</tr>";
+            
+            // Add all data rows
+            results.forEach((business) => {
+              newTableHTML += "<tr>";
+              
               headers.forEach((header) => {
                 // Determine column class based on header name
                 let colClass = "";
@@ -433,244 +862,332 @@
                   colClass = "col-name";
                 }
 
-                // Convert camelCase to Title Case for headers
-                const displayHeader = header
-                  .replace(/([A-Z])/g, " $1")
-                  .replace(/^./, (str) => str.toUpperCase());
-
-                previewHTML += `<th class="${colClass}">${displayHeader}</th>`;
-              });
-              previewHTML += "</tr>";
-
-              // Add data rows
-              const previewLimit = Math.min(results.length, 5);
-              for (let i = 0; i < previewLimit; i++) {
-                const business = results[i];
-                previewHTML += "<tr>";
-
-                headers.forEach((header) => {
-                  // Determine column class based on header name
-                  let colClass = "";
-                  if (/website|url|web/i.test(header)) {
-                    colClass = "col-website";
-                  } else if (/address|street|location/i.test(header)) {
-                    colClass = "col-address";
-                  } else if (/name|business|company/i.test(header)) {
-                    colClass = "col-name";
-                  }
-
-                  const value = business[header] || "";
-
-                  // Handle different cell types differently
-                  if (
-                    /website|url|web/i.test(header) &&
-                    value.startsWith("http")
-                  ) {
-                    // Make websites clickable
-                    previewHTML += `<td class="${colClass}"><a href="${value}" target="_blank">${value}</a></td>`;
-                  } else if (/phone/i.test(header)) {
-                    // Format phone numbers consistently
-                    previewHTML += `<td class="${colClass}">${value}</td>`;
-                  } else {
-                    // Regular cell
-                    previewHTML += `<td class="${colClass}">${value}</td>`;
-                  }
-                });
-
-                previewHTML += "</tr>";
-              }
-
-              previewHTML += "</table>";
-              previewHTML += "</div>"; // Close table-scroll-container
-
-              if (results.length > previewLimit) {
-                previewHTML += `<div>... and ${
-                  results.length - previewLimit
-                } more entries</div>`;
-              }
-
-              filePreviewContent.innerHTML = previewHTML;
-            } else {
-              filePreviewContent.innerHTML = `<div style="color:red;">Error: ${data.error}</div>`;
-            }
-          } else if (format === "csv") {
-            const text = await response.text();
-
-            // Parse CSV properly, handling commas within quoted fields
-            function parseCSVLine(line) {
-              const result = [];
-              let cell = "";
-              let inQuotes = false;
-
-              for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-
-                if (char === '"') {
-                  // Handle quotes
-                  if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-                    // Escaped quote inside a quoted field
-                    cell += '"';
-                    i++; // Skip the next quote
-                  } else {
-                    // Toggle quote state
-                    inQuotes = !inQuotes;
-                  }
-                } else if (char === "," && !inQuotes) {
-                  // End of cell
-                  result.push(cell);
-                  cell = "";
-                } else {
-                  // Add character to current cell
-                  cell += char;
-                }
-              }
-
-              // Add the last cell
-              result.push(cell);
-              return result;
-            }
-
-            // Split into lines and clean up
-            const lines = text.split("\n").filter((line) => line.trim());
-
-            // Parse headers and data
-            const headers = parseCSVLine(lines[0]);
-
-            if (lines.length <= 1) {
-              filePreviewContent.innerHTML =
-                "<div>No results in this file</div>";
-              return;
-            }
-
-            // Parse the data into objects for sorting
-            const businesses = [];
-            for (let i = 1; i < lines.length; i++) {
-              if (!lines[i].trim()) continue;
-
-              const cells = parseCSVLine(lines[i]);
-              const business = {};
-
-              headers.forEach((header, index) => {
-                if (index < cells.length) {
-                  // Clean the cell value
-                  business[header.replace(/^"(.*)"$/, "$1").trim()] = cells[
-                    index
-                  ]
-                    .replace(/^"(.*)"$/, "$1")
-                    .trim();
-                } else {
-                  business[header.replace(/^"(.*)"$/, "$1").trim()] = "";
-                }
-              });
-
-              businesses.push(business);
-            }
-
-            // Sort businesses alphabetically by Business Name
-            businesses.sort((a, b) => {
-              const nameA = a["Business Name"] || "";
-              const nameB = b["Business Name"] || "";
-              return nameA.localeCompare(nameB);
-            });
-
-            // Show basic stats
-            let previewHTML = `
-        <div class="results-summary">
-          <h3>${businesses.length} businesses found (sorted alphabetically)</h3>
-        </div>
-      `;
-
-            // Show preview header
-            previewHTML +=
-              '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
-
-            // Determine preview limit
-            const previewLimit = Math.min(businesses.length, 5);
-
-            // Create table with our new CSS class and horizontal scrolling container
-            previewHTML += '<div class="table-scroll-container">';
-            previewHTML += '<table class="csv-preview-table">';
-
-            // Add header row
-            previewHTML += "<tr>";
-            headers.forEach((header, index) => {
-              // Clean up header text
-              const cleanHeader = header.replace(/^"(.*)"$/, "$1").trim();
-
-              // Determine column class based on header name
-              let colClass = "";
-              if (/website|url|web/i.test(cleanHeader)) {
-                colClass = "col-website";
-              } else if (/address|street|location/i.test(cleanHeader)) {
-                colClass = "col-address";
-              } else if (/name|business|company/i.test(cleanHeader)) {
-                colClass = "col-name";
-              }
-
-              previewHTML += `<th class="${colClass}">${cleanHeader}</th>`;
-            });
-            previewHTML += "</tr>";
-
-            // Add data rows for the sorted businesses
-            for (let i = 0; i < previewLimit; i++) {
-              if (i >= businesses.length) break;
-
-              const business = businesses[i];
-              previewHTML += "<tr>";
-
-              headers.forEach((header, index) => {
-                // Clean up header text
-                const headerText = header.replace(/^"(.*)"$/, "$1").trim();
-
-                // Get the cell value
-                const cellValue = business[headerText] || "";
-
-                // Determine column class based on header name
-                let colClass = "";
-                if (/website|url|web/i.test(headerText)) {
-                  colClass = "col-website";
-                } else if (/address|street|location/i.test(headerText)) {
-                  colClass = "col-address";
-                } else if (/name|business|company/i.test(headerText)) {
-                  colClass = "col-name";
-                }
+                const value = business[header] || "";
 
                 // Handle different cell types differently
                 if (
-                  /website|url|web/i.test(headerText) &&
-                  cellValue.startsWith("http")
+                  /website|url|web/i.test(header) &&
+                  value.startsWith("http")
                 ) {
                   // Make websites clickable
-                  previewHTML += `<td class="${colClass}"><a href="${cellValue}" target="_blank">${cellValue}</a></td>`;
-                } else if (/phone/i.test(headerText)) {
+                  newTableHTML += `<td class="${colClass}"><a href="${value}" target="_blank">${value}</a></td>`;
+                } else if (/phone/i.test(header)) {
                   // Format phone numbers consistently
-                  previewHTML += `<td class="${colClass}">${cellValue}</td>`;
+                  newTableHTML += `<td class="${colClass}">${value}</td>`;
                 } else {
                   // Regular cell
-                  previewHTML += `<td class="${colClass}">${cellValue}</td>`;
+                  newTableHTML += `<td class="${colClass}">${value}</td>`;
                 }
               });
-
-              previewHTML += "</tr>";
+              
+              newTableHTML += "</tr>";
+            });
+            
+            newTableHTML += "</table>";
+            
+            // Replace the table
+            tableContainer.innerHTML = newTableHTML;
+            
+            // Update the "preview" text
+            const previewText = document.querySelector('div[style*="font-weight:bold"]');
+            if (previewText) {
+              previewText.textContent = "Showing all entries:";
             }
-
-            previewHTML += "</table>";
-            previewHTML += "</div>"; // Close table-scroll-container
-
-            if (businesses.length > previewLimit) {
-              previewHTML += `<div>... and ${
-                businesses.length - previewLimit
-              } more entries</div>`;
+            
+            // Update the "more entries" container
+            const moreEntriesContainer = document.getElementById("more-entries-container");
+            if (moreEntriesContainer) {
+              moreEntriesContainer.innerHTML = `<div style="margin-top: 10px; font-style: italic;">Showing all ${results.length} entries</div>`;
             }
-
-            filePreviewContent.innerHTML = previewHTML;
-          }
-        } catch (error) {
-          filePreviewContent.innerHTML = `<div style="color:red;">Error: ${
-            error.message || "Failed to load preview"
-          }</div>`;
+            
+            // Update summary text
+            const summaryElement = document.querySelector(".results-summary h3");
+            if (summaryElement) {
+              summaryElement.textContent = `${results.length} businesses found (showing all)`;
+            }
+          });
         }
+      } else {
+        filePreviewContent.innerHTML = `<div style="color:red;">Error: ${data.error}</div>`;
       }
+    } else if (format === "csv") {
+      const text = await response.text();
+
+      // Parse CSV properly, handling commas within quoted fields
+      function parseCSVLine(line) {
+        const result = [];
+        let cell = "";
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+
+          if (char === '"') {
+            // Handle quotes
+            if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+              // Escaped quote inside a quoted field
+              cell += '"';
+              i++; // Skip the next quote
+            } else {
+              // Toggle quote state
+              inQuotes = !inQuotes;
+            }
+          } else if (char === "," && !inQuotes) {
+            // End of cell
+            result.push(cell);
+            cell = "";
+          } else {
+            // Add character to current cell
+            cell += char;
+          }
+        }
+
+        // Add the last cell
+        result.push(cell);
+        return result;
+      }
+
+      // Split into lines and clean up
+      const lines = text.split("\n").filter((line) => line.trim());
+
+      // Parse headers and data
+      const headers = parseCSVLine(lines[0]);
+
+      if (lines.length <= 1) {
+        filePreviewContent.innerHTML =
+          "<div>No results in this file</div>";
+        return;
+      }
+
+      // Parse the data into objects for sorting
+      const businesses = [];
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+
+        const cells = parseCSVLine(lines[i]);
+        const business = {};
+
+        headers.forEach((header, index) => {
+          if (index < cells.length) {
+            // Clean the cell value
+            business[header.replace(/^"(.*)"$/, "$1").trim()] = cells[
+              index
+            ]
+              .replace(/^"(.*)"$/, "$1")
+              .trim();
+          } else {
+            business[header.replace(/^"(.*)"$/, "$1").trim()] = "";
+          }
+        });
+
+        businesses.push(business);
+      }
+      
+      // Store all businesses for later use
+      allBusinesses = businesses;
+
+      // Sort businesses alphabetically by Business Name
+      businesses.sort((a, b) => {
+        const nameA = a["Business Name"] || "";
+        const nameB = b["Business Name"] || "";
+        return nameA.localeCompare(nameB);
+      });
+
+      // Show basic stats
+      let previewHTML = `
+  <div class="results-summary">
+    <h3>${businesses.length} businesses found (sorted alphabetically)</h3>
+  </div>
+`;
+
+      // Show preview header
+      previewHTML +=
+        '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
+
+      // Determine preview limit
+      const previewLimit = Math.min(businesses.length, 5);
+
+      // Create table with our new CSS class and horizontal scrolling container
+      previewHTML += '<div class="table-scroll-container">';
+      previewHTML += '<table class="csv-preview-table">';
+
+      // Add header row
+      previewHTML += "<tr>";
+      headers.forEach((header, index) => {
+        // Clean up header text
+        const cleanHeader = header.replace(/^"(.*)"$/, "$1").trim();
+
+        // Determine column class based on header name
+        let colClass = "";
+        if (/website|url|web/i.test(cleanHeader)) {
+          colClass = "col-website";
+        } else if (/address|street|location/i.test(cleanHeader)) {
+          colClass = "col-address";
+        } else if (/name|business|company/i.test(cleanHeader)) {
+          colClass = "col-name";
+        }
+
+        previewHTML += `<th class="${colClass}">${cleanHeader}</th>`;
+      });
+      previewHTML += "</tr>";
+
+      // Add data rows for the sorted businesses
+      for (let i = 0; i < previewLimit; i++) {
+        if (i >= businesses.length) break;
+
+        const business = businesses[i];
+        previewHTML += "<tr>";
+
+        headers.forEach((header, index) => {
+          // Clean up header text
+          const headerText = header.replace(/^"(.*)"$/, "$1").trim();
+
+          // Get the cell value
+          const cellValue = business[headerText] || "";
+
+          // Determine column class based on header name
+          let colClass = "";
+          if (/website|url|web/i.test(headerText)) {
+            colClass = "col-website";
+          } else if (/address|street|location/i.test(headerText)) {
+            colClass = "col-address";
+          } else if (/name|business|company/i.test(headerText)) {
+            colClass = "col-name";
+          }
+
+          // Handle different cell types differently
+          if (
+            /website|url|web/i.test(headerText) &&
+            cellValue.startsWith("http")
+          ) {
+            // Make websites clickable
+            previewHTML += `<td class="${colClass}"><a href="${cellValue}" target="_blank">${cellValue}</a></td>`;
+          } else if (/phone/i.test(headerText)) {
+            // Format phone numbers consistently
+            previewHTML += `<td class="${colClass}">${cellValue}</td>`;
+          } else {
+            // Regular cell
+            previewHTML += `<td class="${colClass}">${cellValue}</td>`;
+          }
+        });
+
+        previewHTML += "</tr>";
+      }
+
+      previewHTML += "</table>";
+      previewHTML += "</div>"; // Close table-scroll-container
+
+      if (businesses.length > previewLimit) {
+        const remainingCount = businesses.length - previewLimit;
+        previewHTML += `<div style="margin-top: 15px;" id="more-entries-container">... and <a href="#" id="show-more-entries" style="color: #ffc107; text-decoration: underline; font-weight: bold;">${remainingCount} more entries</a></div>`;
+      }
+
+      filePreviewContent.innerHTML = previewHTML;
+      
+      // Add event listener for "show more entries" directly after setting the HTML
+      const showMoreLink = document.getElementById("show-more-entries");
+      if (showMoreLink) {
+        showMoreLink.addEventListener("click", function(e) {
+          e.preventDefault();
+          
+          // Get the table container
+          const tableContainer = document.querySelector(".table-scroll-container");
+          if (!tableContainer) return;
+          
+          // Create a new table with all entries
+          let newTableHTML = '<table class="csv-preview-table">';
+          
+          // Add header row
+          newTableHTML += "<tr>";
+          headers.forEach((header, index) => {
+            // Clean up header text
+            const cleanHeader = header.replace(/^"(.*)"$/, "$1").trim();
+
+            // Determine column class based on header name
+            let colClass = "";
+            if (/website|url|web/i.test(cleanHeader)) {
+              colClass = "col-website";
+            } else if (/address|street|location/i.test(cleanHeader)) {
+              colClass = "col-address";
+            } else if (/name|business|company/i.test(cleanHeader)) {
+              colClass = "col-name";
+            }
+
+            newTableHTML += `<th class="${colClass}">${cleanHeader}</th>`;
+          });
+          newTableHTML += "</tr>";
+          
+          // Add all data rows
+          businesses.forEach((business) => {
+            newTableHTML += "<tr>";
+            
+            headers.forEach((header, index) => {
+              // Clean up header text
+              const headerText = header.replace(/^"(.*)"$/, "$1").trim();
+
+              // Get the cell value
+              const cellValue = business[headerText] || "";
+
+              // Determine column class based on header name
+              let colClass = "";
+              if (/website|url|web/i.test(headerText)) {
+                colClass = "col-website";
+              } else if (/address|street|location/i.test(headerText)) {
+                colClass = "col-address";
+              } else if (/name|business|company/i.test(headerText)) {
+                colClass = "col-name";
+              }
+
+              // Handle different cell types differently
+              if (
+                /website|url|web/i.test(headerText) &&
+                cellValue.startsWith("http")
+              ) {
+                // Make websites clickable
+                newTableHTML += `<td class="${colClass}"><a href="${cellValue}" target="_blank">${cellValue}</a></td>`;
+              } else if (/phone/i.test(headerText)) {
+                // Format phone numbers consistently
+                newTableHTML += `<td class="${colClass}">${cellValue}</td>`;
+              } else {
+                // Regular cell
+                newTableHTML += `<td class="${colClass}">${cellValue}</td>`;
+              }
+            });
+            
+            newTableHTML += "</tr>";
+          });
+          
+          newTableHTML += "</table>";
+          
+          // Replace the table
+          tableContainer.innerHTML = newTableHTML;
+          
+          // Update the "preview" text
+          const previewText = document.querySelector('div[style*="font-weight:bold"]');
+          if (previewText) {
+            previewText.textContent = "Showing all entries:";
+          }
+          
+          // Update the "more entries" container
+          const moreEntriesContainer = document.getElementById("more-entries-container");
+          if (moreEntriesContainer) {
+            moreEntriesContainer.innerHTML = `<div style="margin-top: 10px; font-style: italic;">Showing all ${businesses.length} entries</div>`;
+          }
+          
+          // Update summary text
+          const summaryElement = document.querySelector(".results-summary h3");
+          if (summaryElement) {
+            summaryElement.textContent = `${businesses.length} businesses found (showing all)`;
+          }
+        });
+      }
+    }
+  } catch (error) {
+    filePreviewContent.innerHTML = `<div style="color:red;">Error: ${
+      error.message || "Failed to load preview"
+    }</div>`;
+  }
+}
 
       // Download file
       function downloadFile(filename, format) {
