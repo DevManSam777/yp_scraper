@@ -1799,30 +1799,74 @@
       // Set session persistence
       setPersistence(auth, browserSessionPersistence);
 
-      // Check authentication state before showing content
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          // Not logged in - redirect to login page
-          window.history.replaceState(null, "", "/login");
-          window.location.href = "/login";
-        } else {
-          // Logged in - show the page content
+      // State flag to prevent multiple redirects
+      let isRedirecting = false;
+
+      // Hide content initially (redundant, but a safeguard)
+      if (document.body.style.display !== "none") {
+        document.body.style.display = "none";
+      }
+
+      // We'll check auth state with a short delay to prevent flash
+      const checkAuthWithDelay = () => {
+        // First, check if we already have a current user synchronized
+        if (auth.currentUser) {
+          // User is already logged in, show content immediately
           document.body.style.display = "block";
+          return;
         }
-      });
+
+        // Set a timeout to ensure we redirect if auth check takes too long
+        const authTimeout = setTimeout(() => {
+          // If body is still hidden and we're not already redirecting
+          if (document.body.style.display === "none" && !isRedirecting) {
+            isRedirecting = true;
+
+            // Important: Use replaceState to preserve back button behavior
+            window.history.replaceState(null, "", "/login");
+            window.location.href = "/login";
+          }
+        }, 500);
+
+        // Also set up the auth state listener
+        onAuthStateChanged(auth, (user) => {
+          // Clear the timeout since auth state is now determined
+          clearTimeout(authTimeout);
+
+          if (isRedirecting) return; // Prevent multiple redirects
+
+          if (!user) {
+            // Not logged in - redirect to login with replaceState
+            isRedirecting = true;
+            window.history.replaceState(null, "", "/login");
+            window.location.href = "/login";
+          } else {
+            // Logged in - show the page content
+            document.body.style.display = "block";
+          }
+        });
+      };
+
+      // Start the auth check process
+      checkAuthWithDelay();
 
       // Handle logout
-      document.getElementById("logoutBtn").addEventListener("click", () => {
+      document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        if (isRedirecting) return; // Prevent multiple actions
+
         // Show loading indicator
         const logoutBtn = document.getElementById("logoutBtn");
         const originalContent = logoutBtn.innerHTML;
         logoutBtn.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i> Logging out...';
 
+        // Set redirect flag
+        isRedirecting = true;
+
         auth
           .signOut()
           .then(() => {
-            // Redirect to login page
+            // Use replaceState to preserve back button behavior
             window.history.replaceState(null, "", "/login");
             window.location.href = "/login";
           })
@@ -1830,7 +1874,16 @@
             console.error("Logout error:", error);
             // Restore button on error
             logoutBtn.innerHTML = originalContent;
+            isRedirecting = false;
           });
+      });
+
+      // Handle popstate event for proper history navigation
+      window.addEventListener("popstate", function (event) {
+        // If user tried to navigate back to login while logged in, prevent it
+        if (auth.currentUser && window.location.pathname.includes("/login")) {
+          window.history.pushState(null, "", "/app");
+        }
       });
     </script>
   </body>
