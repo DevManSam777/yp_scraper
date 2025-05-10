@@ -49,8 +49,7 @@
         <button type="submit" class="login-btn">Sign In</button>
       </form>
     </div>
-
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK - Modern approach using Promises -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
@@ -79,17 +78,40 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
 
-      // Flag to prevent multiple redirects
-      let isRedirecting = false;
+      // Modern Promise-based auth state verification
+      function getCurrentUser() {
+        return new Promise((resolve, reject) => {
+          const unsubscribe = onAuthStateChanged(
+            auth,
+            (user) => {
+              unsubscribe(); // Unsubscribe once we have the answer
+              resolve(user);
+            },
+            reject
+          );
+        });
+      }
 
-      // Redirect to main app if already logged in
-      onAuthStateChanged(auth, (user) => {
-        if (user && !isRedirecting) {
-          isRedirecting = true;
-          // Use location.replace to avoid history stack issues
-          window.location.replace("/app");
+      // Check auth state and redirect if needed
+      async function checkAuthAndRedirect() {
+        try {
+          const user = await getCurrentUser();
+
+          if (user) {
+            // User is already signed in, redirect to app
+            console.log("User already authenticated, redirecting to app");
+            window.location.replace("/app");
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error("Auth check error:", error);
+          return false;
         }
-      });
+      }
+
+      // Start auth check
+      checkAuthAndRedirect();
 
       // Handle login form submission
       const loginForm = document.getElementById("loginForm");
@@ -98,8 +120,6 @@
 
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
-        if (isRedirecting) return;
 
         const email = emailInput.value.trim();
         const password = document.getElementById("password").value;
@@ -117,10 +137,7 @@
           // Sign in with email and password
           await signInWithEmailAndPassword(auth, email, password);
 
-          // Set redirecting flag to prevent duplicate redirects
-          isRedirecting = true;
-
-          // Navigate to main page - use replace instead of history manipulation
+          // Navigate to main page - use replace to avoid history issues
           window.location.replace("/app");
         } catch (error) {
           // Show error message

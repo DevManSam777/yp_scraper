@@ -178,7 +178,7 @@
         </div>
       </div>
     </div>
-    <!-- Firebase Authentication  Leave in HTML body dont remove-->
+    <!-- Firebase Authentication - Modern approach using Promises -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script type="module">
@@ -207,82 +207,92 @@
       // Set session persistence
       setPersistence(auth, browserSessionPersistence);
 
-      // State flags to prevent multiple redirects and track authentication check
-      let isRedirecting = false;
-      let authChecked = false;
+      // Hide content initially
+      document.body.style.display = "none";
 
-      // Hide content initially (redundant, but a safeguard)
-      if (document.body.style.display !== "none") {
-        document.body.style.display = "none";
-      }
+      // Create a simple loading indicator
+      const loadingIndicator = document.createElement("div");
+      loadingIndicator.style.position = "fixed";
+      loadingIndicator.style.top = "50%";
+      loadingIndicator.style.left = "50%";
+      loadingIndicator.style.transform = "translate(-50%, -50%)";
+      loadingIndicator.style.textAlign = "center";
+      loadingIndicator.innerHTML = `
+    <div style="width: 40px; height: 40px; border: 4px solid #ffc107; border-radius: 50%; border-top-color: transparent; margin: 0 auto 15px; animation: spin 1s linear infinite;"></div>
+    <div style="color: #ffc107; font-family: 'Segoe UI', sans-serif; font-weight: bold;">Verifying authentication...</div>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+  `;
+      document.body.appendChild(loadingIndicator);
 
-      // Check auth state with a more reliable approach for mobile
-      function checkAuth() {
-        // Check for current user (might be synchronously available)
-        if (auth.currentUser) {
-          document.body.style.display = "block";
-          authChecked = true;
-          return;
-        }
-
-        // Set a timeout to prevent hanging indefinitely
-        const authTimeout = setTimeout(() => {
-          if (!authChecked && !isRedirecting) {
-            console.log("Auth check timed out, redirecting to login");
-            isRedirecting = true;
-            window.location.replace("/login");
-          }
-        }, 3000); // Increased timeout for slower mobile connections
-
-        // Set up auth state listener
-        onAuthStateChanged(auth, (user) => {
-          clearTimeout(authTimeout);
-          authChecked = true;
-
-          if (isRedirecting) return;
-
-          if (!user) {
-            // Not logged in - redirect to login with replaceState
-            isRedirecting = true;
-            window.location.replace("/login");
-          } else {
-            // Logged in - show the page content
-            document.body.style.display = "block";
-          }
+      // Modern Promise-based auth state verification
+      function getCurrentUser() {
+        return new Promise((resolve, reject) => {
+          // Handle auth state change
+          const unsubscribe = onAuthStateChanged(
+            auth,
+            (user) => {
+              unsubscribe(); // Unsubscribe once we have the answer
+              resolve(user);
+            },
+            reject
+          );
         });
       }
 
-      // Start the auth check process
-      checkAuth();
+      // Handle auth state checking and UI updates
+      async function checkAuthAndUpdateUI() {
+        try {
+          // Wait for auth state to be determined
+          const user = await getCurrentUser();
+
+          // Remove loading indicator
+          if (loadingIndicator.parentNode) {
+            loadingIndicator.parentNode.removeChild(loadingIndicator);
+          }
+
+          if (user) {
+            // User is signed in, show the app
+            document.body.style.display = "block";
+          } else {
+            // User is not signed in, redirect to login
+            console.log("No authenticated user found, redirecting to login");
+            window.location.replace("/login");
+          }
+        } catch (error) {
+          console.error("Auth check error:", error);
+          // Fallback to redirect in case of error
+          window.location.replace("/login");
+        }
+      }
+
+      // Start the auth checking process
+      checkAuthAndUpdateUI();
 
       // Handle logout
       document.getElementById("logoutBtn")?.addEventListener("click", () => {
-        if (isRedirecting) return; // Prevent multiple actions
-
         // Show loading indicator
         const logoutBtn = document.getElementById("logoutBtn");
         const originalContent = logoutBtn.innerHTML;
         logoutBtn.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i> Logging out...';
-
-        // Set redirect flag
-        isRedirecting = true;
+        logoutBtn.disabled = true;
 
         auth
           .signOut()
           .then(() => {
-            // Use replaceState to preserve back button behavior
+            // Navigate to login page
             window.location.replace("/login");
           })
           .catch((error) => {
             console.error("Logout error:", error);
             // Restore button on error
             logoutBtn.innerHTML = originalContent;
-            isRedirecting = false;
+            logoutBtn.disabled = false;
+            alert("Error signing out. Please try again.");
           });
       });
 
-      // Handle popstate event for proper history navigation
+      // Handle popstate event for navigation
       window.addEventListener("popstate", function (event) {
         // If user tried to navigate back to login while logged in, prevent it
         if (auth.currentUser && window.location.pathname.includes("/login")) {
@@ -290,6 +300,7 @@
         }
       });
     </script>
+    <script src="app.js" type="module"></script>
     <script src="app.js" type="module"></script>
   </body>
 </html>
