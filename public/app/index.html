@@ -356,7 +356,7 @@
 
       .file-info {
         flex: 1;
-        max-width: 70%; 
+        max-width: 70%;
         overflow: hidden;
       }
 
@@ -458,7 +458,6 @@
         justify-content: center;
       }
 
-  
       .modal-content {
         background-color: white;
         border-radius: var(--border-radius);
@@ -518,7 +517,7 @@
       .csv-preview-table {
         min-width: 100%;
         border-collapse: collapse;
-        font-size: 14px; 
+        font-size: 14px;
         table-layout: auto; /* let columns size based on content */
         white-space: nowrap; /* prevent text wrapping in cells */
       }
@@ -540,19 +539,19 @@
         border: 1px solid var(--border-color);
         max-width: 250px;
         overflow: hidden;
-        text-overflow: ellipsis; 
+        text-overflow: ellipsis;
       }
 
       .csv-preview-table .col-website {
-        min-width: 180px; 
+        min-width: 180px;
       }
 
       .csv-preview-table .col-address {
-        min-width: 150px; 
+        min-width: 150px;
       }
 
       .csv-preview-table .col-name {
-        min-width: 120px; 
+        min-width: 120px;
       }
 
       /* Zebra striping for rows */
@@ -588,7 +587,6 @@
         margin-bottom: 0.5rem;
       }
 
-  
       .progress-container .status-message {
         color: white !important;
         font-weight: 500;
@@ -612,7 +610,7 @@
         }
 
         .file-info {
-          max-width: 100%; 
+          max-width: 100%;
         }
 
         .file-name {
@@ -623,7 +621,7 @@
         }
 
         .csv-preview-table {
-          font-size: 12px; 
+          font-size: 12px;
         }
 
         .csv-preview-table th,
@@ -675,7 +673,6 @@
           color: #adb5bd;
         }
 
-  
         nav {
           background-color: #1a1a1a;
         }
@@ -703,7 +700,6 @@
           color: white;
         }
 
-    
         .csv-preview-table th {
           background-color: #2a2a2a;
           border-color: #444;
@@ -714,7 +710,6 @@
         }
       }
 
-    
       @media (prefers-color-scheme: light) {
         .business-item {
           background-color: white;
@@ -735,7 +730,6 @@
           background-color: var(--secondary-color);
           color: white;
         }
-
 
         .status-message {
           color: #333 !important;
@@ -1323,7 +1317,7 @@
 
             if (data.success) {
               // Create preview content for JSON
-              const results = data.results;
+              let results = data.results;
 
               if (results.length === 0) {
                 filePreviewContent.innerHTML =
@@ -1331,10 +1325,17 @@
                 return;
               }
 
+              // Sort results alphabetically by business name
+              results.sort((a, b) => {
+                return (a.businessName || "").localeCompare(
+                  b.businessName || ""
+                );
+              });
+
               // Show basic stats
               let previewHTML = `
         <div class="results-summary">
-          <h3>${results.length} businesses found</h3>
+          <h3>${results.length} businesses found (sorted alphabetically)</h3>
         </div>
       `;
 
@@ -1471,10 +1472,41 @@
               return;
             }
 
+            // Parse the data into objects for sorting
+            const businesses = [];
+            for (let i = 1; i < lines.length; i++) {
+              if (!lines[i].trim()) continue;
+
+              const cells = parseCSVLine(lines[i]);
+              const business = {};
+
+              headers.forEach((header, index) => {
+                if (index < cells.length) {
+                  // Clean the cell value
+                  business[header.replace(/^"(.*)"$/, "$1").trim()] = cells[
+                    index
+                  ]
+                    .replace(/^"(.*)"$/, "$1")
+                    .trim();
+                } else {
+                  business[header.replace(/^"(.*)"$/, "$1").trim()] = "";
+                }
+              });
+
+              businesses.push(business);
+            }
+
+            // Sort businesses alphabetically by Business Name
+            businesses.sort((a, b) => {
+              const nameA = a["Business Name"] || "";
+              const nameB = b["Business Name"] || "";
+              return nameA.localeCompare(nameB);
+            });
+
             // Show basic stats
             let previewHTML = `
         <div class="results-summary">
-          <h3>${lines.length - 1} businesses found</h3>
+          <h3>${businesses.length} businesses found (sorted alphabetically)</h3>
         </div>
       `;
 
@@ -1483,7 +1515,7 @@
               '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
 
             // Determine preview limit
-            const previewLimit = Math.min(lines.length, 6); // Include header + 5 rows
+            const previewLimit = Math.min(businesses.length, 5);
 
             // Create table with our new CSS class and horizontal scrolling container
             previewHTML += '<div class="table-scroll-container">';
@@ -1509,63 +1541,45 @@
             });
             previewHTML += "</tr>";
 
-            // Add data rows
-            for (let i = 1; i < previewLimit; i++) {
-              if (i >= lines.length) break;
+            // Add data rows for the sorted businesses
+            for (let i = 0; i < previewLimit; i++) {
+              if (i >= businesses.length) break;
 
-              const cells = parseCSVLine(lines[i]);
+              const business = businesses[i];
               previewHTML += "<tr>";
 
-              cells.forEach((cell, index) => {
-                // Clean up cell text
-                const cleanCell = cell.replace(/^"(.*)"$/, "$1").trim();
+              headers.forEach((header, index) => {
+                // Clean up header text
+                const headerText = header.replace(/^"(.*)"$/, "$1").trim();
 
-                // Determine column class based on header name if available
+                // Get the cell value
+                const cellValue = business[headerText] || "";
+
+                // Determine column class based on header name
                 let colClass = "";
-                if (index < headers.length) {
-                  const headerText = headers[index]
-                    .replace(/^"(.*)"$/, "$1")
-                    .trim();
-                  if (/website|url|web/i.test(headerText)) {
-                    colClass = "col-website";
-                  } else if (/address|street|location/i.test(headerText)) {
-                    colClass = "col-address";
-                  } else if (/name|business|company/i.test(headerText)) {
-                    colClass = "col-name";
-                  }
+                if (/website|url|web/i.test(headerText)) {
+                  colClass = "col-website";
+                } else if (/address|street|location/i.test(headerText)) {
+                  colClass = "col-address";
+                } else if (/name|business|company/i.test(headerText)) {
+                  colClass = "col-name";
                 }
 
                 // Handle different cell types differently
-                if (index < headers.length) {
-                  const headerText = headers[index]
-                    .replace(/^"(.*)"$/, "$1")
-                    .trim();
-
-                  if (
-                    /website|url|web/i.test(headerText) &&
-                    cleanCell.startsWith("http")
-                  ) {
-                    // Make websites clickable
-                    previewHTML += `<td class="${colClass}"><a href="${cleanCell}" target="_blank">${cleanCell}</a></td>`;
-                  } else if (/phone/i.test(headerText)) {
-                    // Format phone numbers consistently
-                    previewHTML += `<td class="${colClass}">${cleanCell}</td>`;
-                  } else {
-                    // Regular cell
-                    previewHTML += `<td class="${colClass}">${cleanCell}</td>`;
-                  }
+                if (
+                  /website|url|web/i.test(headerText) &&
+                  cellValue.startsWith("http")
+                ) {
+                  // Make websites clickable
+                  previewHTML += `<td class="${colClass}"><a href="${cellValue}" target="_blank">${cellValue}</a></td>`;
+                } else if (/phone/i.test(headerText)) {
+                  // Format phone numbers consistently
+                  previewHTML += `<td class="${colClass}">${cellValue}</td>`;
                 } else {
-                  // Extra cell
-                  previewHTML += `<td>${cleanCell}</td>`;
+                  // Regular cell
+                  previewHTML += `<td class="${colClass}">${cellValue}</td>`;
                 }
               });
-
-              // Add empty cells if row has fewer cells than headers
-              if (cells.length < headers.length) {
-                for (let j = cells.length; j < headers.length; j++) {
-                  previewHTML += `<td></td>`;
-                }
-              }
 
               previewHTML += "</tr>";
             }
@@ -1573,9 +1587,9 @@
             previewHTML += "</table>";
             previewHTML += "</div>"; // Close table-scroll-container
 
-            if (lines.length > previewLimit) {
+            if (businesses.length > previewLimit) {
               previewHTML += `<div>... and ${
-                lines.length - previewLimit
+                businesses.length - previewLimit
               } more entries</div>`;
             }
 

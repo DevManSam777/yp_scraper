@@ -693,6 +693,13 @@ exportToJSON(businesses, filename, append = false) {
     finalBusinesses = this.mergeResults(existing, businesses);
   }
 
+  // Sort businesses alphabetically by business name
+  finalBusinesses.sort((a, b) => {
+    // Use localeCompare for proper alphabetical sorting
+    // This handles case sensitivity and special characters properly
+    return (a.businessName || "").localeCompare(b.businessName || "");
+  });
+
   const jsonContent = JSON.stringify(finalBusinesses, null, 2);
 
   try {
@@ -711,6 +718,7 @@ exportToJSON(businesses, filename, append = false) {
   }
 }
 
+
 exportToCSV(businesses, filename, append = false) {
   const headers = [
     "Business Name",
@@ -723,18 +731,64 @@ exportToCSV(businesses, filename, append = false) {
     "ZIP Code",
   ];
 
-  // get the full path for the file
+  // Get the full path for the file
   const fullPath = path.join(this.csvDir, filename);
   const fileExists = fs.existsSync(fullPath);
-  let csvContent = "";
-
-  // if NOT appending OR the file does NOT exist, write headers
-  if (!append || !fileExists) {
-    csvContent = headers.join(",") + "\n";
+  
+  // For appending to existing file, we need to read the existing content
+  let existingBusinesses = [];
+  if (append && fileExists) {
+    try {
+      const existingContent = fs.readFileSync(fullPath, 'utf8');
+      const lines = existingContent.split('\n').filter(line => line.trim());
+      
+      // Skip header row
+      if (lines.length > 1) {
+        for (let i = 1; i < lines.length; i++) {
+          const cells = this.parseCSVLine(lines[i]);
+          if (cells.length >= headers.length) {
+            existingBusinesses.push({
+              businessName: cells[0].replace(/^"(.*)"$/, "$1"),
+              businessType: cells[1].replace(/^"(.*)"$/, "$1"),
+              phone: cells[2].replace(/^"(.*)"$/, "$1"),
+              website: cells[3].replace(/^"(.*)"$/, "$1"),
+              streetAddress: cells[4].replace(/^"(.*)"$/, "$1"),
+              city: cells[5].replace(/^"(.*)"$/, "$1"),
+              state: cells[6].replace(/^"(.*)"$/, "$1"),
+              zipCode: cells[7].replace(/^"(.*)"$/, "$1")
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error reading existing CSV file: ${error.message}`);
+      // Continue with empty existing businesses if there's an error
+    }
   }
+  
+  // Combine businesses and sort alphabetically
+  let finalBusinesses = [...businesses];
+  if (append && existingBusinesses.length > 0) {
+    // Merge without duplicates (simple merge, not using mergeResults for simplicity)
+    const businessNameSet = new Set(finalBusinesses.map(b => b.businessName));
+    existingBusinesses.forEach(b => {
+      if (!businessNameSet.has(b.businessName)) {
+        finalBusinesses.push(b);
+        businessNameSet.add(b.businessName);
+      }
+    });
+  }
+  
+  // Sort businesses alphabetically by business name
+  finalBusinesses.sort((a, b) => {
+    return (a.businessName || "").localeCompare(b.businessName || "");
+  });
 
-  businesses.forEach((business) => {
-    // ensure the business object has all the required fields before trying to access them
+  // Create CSV content with headers
+  let csvContent = headers.join(",") + "\n";
+
+  // Add sorted business data
+  finalBusinesses.forEach((business) => {
     const row = [
       this.escapeCSV(business.businessName || ""),
       this.escapeCSV(business.businessType || ""),
@@ -750,25 +804,53 @@ exportToCSV(businesses, filename, append = false) {
   });
 
   try {
-    // make sure the directory exists
+    // Make sure the directory exists
     if (!fs.existsSync(this.csvDir)) {
       fs.mkdirSync(this.csvDir, { recursive: true });
     }
 
-    if (append && fileExists) {
-      fs.appendFileSync(fullPath, csvContent, "utf8");
-      console.log(
-        `Results appended to '${filename}' in ${this.csvDir} directory`
-      );
-    } else {
-      fs.writeFileSync(fullPath, csvContent, "utf8");
-      console.log(
-        `Results saved to '${filename}' in ${this.csvDir} directory`
-      );
-    }
+    // Always write the full file with headers (not appending)
+    fs.writeFileSync(fullPath, csvContent, "utf8");
+    console.log(
+      `Results saved to '${filename}' in ${this.csvDir} directory (Total: ${finalBusinesses.length} businesses)`
+    );
   } catch (error) {
     console.error(`Error writing CSV file '${filename}': ${error.message}`);
   }
+}
+
+// Add a helper function to parse CSV lines
+parseCSVLine(line) {
+  const result = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      // Handle quotes
+      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+        // Escaped quote inside a quoted field
+        cell += '"';
+        i++; // Skip the next quote
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      // End of cell
+      result.push(cell);
+      cell = "";
+    } else {
+      // Add character to current cell
+      cell += char;
+    }
+  }
+
+  // Add the last cell
+  result.push(cell);
+  return result;
 }
 
 escapeCSV(value) {
