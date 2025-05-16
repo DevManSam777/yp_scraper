@@ -327,7 +327,6 @@ button:disabled {
   color: var(--dark-color) !important;
 }
 
-/* Files tab styles */
 .file-list {
   list-style: none;
 }
@@ -373,7 +372,7 @@ button:disabled {
   font-size: 0.9rem;
 }
 
-/* Spinner */
+
 .spinner {
   display: inline-block;
   width: 1rem;
@@ -391,7 +390,6 @@ button:disabled {
   }
 }
 
-/* Toast notification */
 .toast-container {
   position: fixed;
   bottom: 1rem;
@@ -494,21 +492,21 @@ button:disabled {
   gap: 0.5rem;
 }
 
-/* container for the table that allows horizontal scrolling */
+
 .table-scroll-container {
   width: 100%;
   overflow-x: auto;
   margin-bottom: 1rem;
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch; 
 }
 
-/* Table styling */
+
 .csv-preview-table {
   min-width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  table-layout: auto; /* let columns size based on content */
-  white-space: nowrap; /* prevent text wrapping in cells */
+  table-layout: auto; 
+  white-space: nowrap; 
 }
 
 .csv-preview-table th {
@@ -543,7 +541,7 @@ button:disabled {
   min-width: 120px;
 }
 
-/* Zebra striping for rows */
+
 .csv-preview-table tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.05);
 }
@@ -552,7 +550,6 @@ button:disabled {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Make links stand out */
 .csv-preview-table a {
   color: var(--accent-color);
   text-decoration: none;
@@ -562,10 +559,9 @@ button:disabled {
   text-decoration: underline;
 }
 
-/* Results summary */
 .results-summary {
   background-color: #2a2a2a;
-  color: #ffffff;
+  color: white;
   padding: 1rem;
   border-radius: var(--border-radius);
   margin-bottom: 1rem;
@@ -585,7 +581,7 @@ button:disabled {
   font-weight: 500;
 }
 
-/* Responsive styles */
+
 @media (max-width: 768px) {
   header h1 {
     font-size: 1.5rem;
@@ -655,7 +651,7 @@ button:disabled {
   }
 }
 
-/* Dark mode styles */
+
 @media (prefers-color-scheme: dark) {
   :root {
     --light-color: #f0f0f0;

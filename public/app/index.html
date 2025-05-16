@@ -178,7 +178,6 @@
         </div>
       </div>
     </div>
-    <!-- Firebase Authentication - Modern approach using Promises -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script type="module">
@@ -210,7 +209,6 @@
       // Hide content initially
       document.body.style.display = "none";
 
-      // Create a simple loading indicator
       const loadingIndicator = document.createElement("div");
       loadingIndicator.style.position = "fixed";
       loadingIndicator.style.top = "50%";
@@ -224,7 +222,7 @@
   `;
       document.body.appendChild(loadingIndicator);
 
-      // Modern Promise-based auth state verification
+      // Promise-based auth state verification
       function getCurrentUser() {
         return new Promise((resolve, reject) => {
           // Handle auth state change

@@ -1011,7 +1011,7 @@ async function loadResults(file) {
   }
 }
 
-// Extract search query from filename
+// extract search query from filename
 function extractSearchQuery(filename) {
   // Filename format: query_location_date.ext
   const parts = filename.split("_");
