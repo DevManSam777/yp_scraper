@@ -349,322 +349,6 @@ function formatFileSize(bytes) {
 // File format filter change
 fileFormatFilter.addEventListener("change", loadFiles);
 
-// Preview file
-// async function previewFile(filename, format) {
-//   try {
-//     // Set modal title
-//     filePreviewTitle.textContent = filename;
-
-//     // Show loading in modal
-//     filePreviewContent.innerHTML =
-//       '<div style="text-align:center;"><div class="spinner"></div> Loading preview...</div>';
-
-//     // Show modal
-//     filePreviewModal.style.display = "flex";
-
-//     // Set download button link
-//     filePreviewDownloadBtn.setAttribute("data-filename", filename);
-//     filePreviewDownloadBtn.setAttribute("data-format", format);
-
-//     // Fetch file content
-//     const response = await fetch(`/api/results/${format}/${filename}`);
-
-//     if (!response.ok) {
-//       filePreviewContent.innerHTML = `<div style="color:red;">Error: ${response.status} ${response.statusText}</div>`;
-//       return;
-//     }
-
-//     if (format === "json") {
-//       const data = await response.json();
-
-//       if (data.success) {
-//         // Create preview content for JSON
-//         let results = data.results;
-
-//         if (results.length === 0) {
-//           filePreviewContent.innerHTML =
-//             "<div>No results in this file</div>";
-//           return;
-//         }
-
-//         // Sort results alphabetically by business name
-//         results.sort((a, b) => {
-//           return (a.businessName || "").localeCompare(
-//             b.businessName || ""
-//           );
-//         });
-
-//         // Show basic stats
-//         let previewHTML = `
-//   <div class="results-summary">
-//     <h3>${results.length} businesses found (sorted alphabetically)</h3>
-//   </div>
-// `;
-
-//         // Show preview header
-//         previewHTML +=
-//           '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
-
-//         // Create a table view similar to CSV display
-//         previewHTML += '<div class="table-scroll-container">';
-//         previewHTML += '<table class="csv-preview-table">';
-
-//         // Add header row based on the first result's properties
-//         const firstBusiness = results[0];
-//         const headers = Object.keys(firstBusiness);
-
-//         previewHTML += "<tr>";
-//         headers.forEach((header) => {
-//           // Determine column class based on header name
-//           let colClass = "";
-//           if (/website|url|web/i.test(header)) {
-//             colClass = "col-website";
-//           } else if (/address|street|location/i.test(header)) {
-//             colClass = "col-address";
-//           } else if (/name|business|company/i.test(header)) {
-//             colClass = "col-name";
-//           }
-
-//           // Convert camelCase to Title Case for headers
-//           const displayHeader = header
-//             .replace(/([A-Z])/g, " $1")
-//             .replace(/^./, (str) => str.toUpperCase());
-
-//           previewHTML += `<th class="${colClass}">${displayHeader}</th>`;
-//         });
-//         previewHTML += "</tr>";
-
-//         // Add data rows
-//         const previewLimit = Math.min(results.length, 5);
-//         for (let i = 0; i < previewLimit; i++) {
-//           const business = results[i];
-//           previewHTML += "<tr>";
-
-//           headers.forEach((header) => {
-//             // Determine column class based on header name
-//             let colClass = "";
-//             if (/website|url|web/i.test(header)) {
-//               colClass = "col-website";
-//             } else if (/address|street|location/i.test(header)) {
-//               colClass = "col-address";
-//             } else if (/name|business|company/i.test(header)) {
-//               colClass = "col-name";
-//             }
-
-//             const value = business[header] || "";
-
-//             // Handle different cell types differently
-//             if (
-//               /website|url|web/i.test(header) &&
-//               value.startsWith("http")
-//             ) {
-//               // Make websites clickable
-//               previewHTML += `<td class="${colClass}"><a href="${value}" target="_blank">${value}</a></td>`;
-//             } else if (/phone/i.test(header)) {
-//               // Format phone numbers consistently
-//               previewHTML += `<td class="${colClass}">${value}</td>`;
-//             } else {
-//               // Regular cell
-//               previewHTML += `<td class="${colClass}">${value}</td>`;
-//             }
-//           });
-
-//           previewHTML += "</tr>";
-//         }
-
-//         previewHTML += "</table>";
-//         previewHTML += "</div>"; // Close table-scroll-container
-
-//         if (results.length > previewLimit) {
-//           previewHTML += `<div>... and ${
-//             results.length - previewLimit
-//           } more entries</div>`;
-//         }
-
-//         filePreviewContent.innerHTML = previewHTML;
-//       } else {
-//         filePreviewContent.innerHTML = `<div style="color:red;">Error: ${data.error}</div>`;
-//       }
-//     } else if (format === "csv") {
-//       const text = await response.text();
-
-//       // Parse CSV properly, handling commas within quoted fields
-//       function parseCSVLine(line) {
-//         const result = [];
-//         let cell = "";
-//         let inQuotes = false;
-
-//         for (let i = 0; i < line.length; i++) {
-//           const char = line[i];
-
-//           if (char === '"') {
-//             // Handle quotes
-//             if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-//               // Escaped quote inside a quoted field
-//               cell += '"';
-//               i++; // Skip the next quote
-//             } else {
-//               // Toggle quote state
-//               inQuotes = !inQuotes;
-//             }
-//           } else if (char === "," && !inQuotes) {
-//             // End of cell
-//             result.push(cell);
-//             cell = "";
-//           } else {
-//             // Add character to current cell
-//             cell += char;
-//           }
-//         }
-
-//         // Add the last cell
-//         result.push(cell);
-//         return result;
-//       }
-
-//       // Split into lines and clean up
-//       const lines = text.split("\n").filter((line) => line.trim());
-
-//       // Parse headers and data
-//       const headers = parseCSVLine(lines[0]);
-
-//       if (lines.length <= 1) {
-//         filePreviewContent.innerHTML =
-//           "<div>No results in this file</div>";
-//         return;
-//       }
-
-//       // Parse the data into objects for sorting
-//       const businesses = [];
-//       for (let i = 1; i < lines.length; i++) {
-//         if (!lines[i].trim()) continue;
-
-//         const cells = parseCSVLine(lines[i]);
-//         const business = {};
-
-//         headers.forEach((header, index) => {
-//           if (index < cells.length) {
-//             // Clean the cell value
-//             business[header.replace(/^"(.*)"$/, "$1").trim()] = cells[
-//               index
-//             ]
-//               .replace(/^"(.*)"$/, "$1")
-//               .trim();
-//           } else {
-//             business[header.replace(/^"(.*)"$/, "$1").trim()] = "";
-//           }
-//         });
-
-//         businesses.push(business);
-//       }
-
-//       // Sort businesses alphabetically by Business Name
-//       businesses.sort((a, b) => {
-//         const nameA = a["Business Name"] || "";
-//         const nameB = b["Business Name"] || "";
-//         return nameA.localeCompare(nameB);
-//       });
-
-//       // Show basic stats
-//       let previewHTML = `
-//   <div class="results-summary">
-//     <h3>${businesses.length} businesses found (sorted alphabetically)</h3>
-//   </div>
-// `;
-
-//       // Show preview header
-//       previewHTML +=
-//         '<div style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
-
-//       // Determine preview limit
-//       const previewLimit = Math.min(businesses.length, 5);
-
-//       // Create table with our new CSS class and horizontal scrolling container
-//       previewHTML += '<div class="table-scroll-container">';
-//       previewHTML += '<table class="csv-preview-table">';
-
-//       // Add header row
-//       previewHTML += "<tr>";
-//       headers.forEach((header, index) => {
-//         // Clean up header text
-//         const cleanHeader = header.replace(/^"(.*)"$/, "$1").trim();
-
-//         // Determine column class based on header name
-//         let colClass = "";
-//         if (/website|url|web/i.test(cleanHeader)) {
-//           colClass = "col-website";
-//         } else if (/address|street|location/i.test(cleanHeader)) {
-//           colClass = "col-address";
-//         } else if (/name|business|company/i.test(cleanHeader)) {
-//           colClass = "col-name";
-//         }
-
-//         previewHTML += `<th class="${colClass}">${cleanHeader}</th>`;
-//       });
-//       previewHTML += "</tr>";
-
-//       // Add data rows for the sorted businesses
-//       for (let i = 0; i < previewLimit; i++) {
-//         if (i >= businesses.length) break;
-
-//         const business = businesses[i];
-//         previewHTML += "<tr>";
-
-//         headers.forEach((header, index) => {
-//           // Clean up header text
-//           const headerText = header.replace(/^"(.*)"$/, "$1").trim();
-
-//           // Get the cell value
-//           const cellValue = business[headerText] || "";
-
-//           // Determine column class based on header name
-//           let colClass = "";
-//           if (/website|url|web/i.test(headerText)) {
-//             colClass = "col-website";
-//           } else if (/address|street|location/i.test(headerText)) {
-//             colClass = "col-address";
-//           } else if (/name|business|company/i.test(headerText)) {
-//             colClass = "col-name";
-//           }
-
-//           // Handle different cell types differently
-//           if (
-//             /website|url|web/i.test(headerText) &&
-//             cellValue.startsWith("http")
-//           ) {
-//             // Make websites clickable
-//             previewHTML += `<td class="${colClass}"><a href="${cellValue}" target="_blank">${cellValue}</a></td>`;
-//           } else if (/phone/i.test(headerText)) {
-//             // Format phone numbers consistently
-//             previewHTML += `<td class="${colClass}">${cellValue}</td>`;
-//           } else {
-//             // Regular cell
-//             previewHTML += `<td class="${colClass}">${cellValue}</td>`;
-//           }
-//         });
-
-//         previewHTML += "</tr>";
-//       }
-
-//       previewHTML += "</table>";
-//       previewHTML += "</div>"; // Close table-scroll-container
-
-//       if (businesses.length > previewLimit) {
-//         previewHTML += `<div>... and ${
-//           businesses.length - previewLimit
-//         } more entries</div>`;
-//       }
-
-//       filePreviewContent.innerHTML = previewHTML;
-//     }
-//   } catch (error) {
-//     filePreviewContent.innerHTML = `<div style="color:red;">Error: ${
-//       error.message || "Failed to load preview"
-//     }</div>`;
-//   }
-// }
-
-// Fixed version - this replaces the entire previewFile function in public/app/app.js
 async function previewFile(filename, format) {
   try {
     // Set modal title
@@ -724,7 +408,7 @@ async function previewFile(filename, format) {
         previewHTML +=
           '<div class="preview-header" style="font-weight:bold; margin-bottom:0.5rem;">Preview (first 5 entries):</div>';
 
-        // Create a table view similar to CSV display
+        // Create a table view 
         previewHTML += '<div class="table-scroll-container">';
         previewHTML += '<table class="csv-preview-table">';
 
@@ -1318,7 +1002,6 @@ async function loadResults(file) {
       downloadResultsBtn.setAttribute("data-filename", file.name);
       downloadResultsBtn.setAttribute("data-format", format);
 
-      // Render businesses
       renderBusinessList(results);
     }
   } catch (error) {
@@ -1349,7 +1032,6 @@ function extractSearchLocation(filename) {
   return parts.slice(1, datePartIndex).join(" ");
 }
 
-// Render business list
 function renderBusinessList(businesses) {
   businessList.innerHTML = "";
 
@@ -1357,7 +1039,7 @@ function renderBusinessList(businesses) {
     const item = document.createElement("div");
     item.className = "business-item";
 
-    // Handle different property names between JSON and CSV
+    // handle different property names between JSON and CSV
     const name =
       business.businessName || business["Business Name"] || "Unknown";
     const type = business.businessType || business["Business Type"] || "";
@@ -1401,12 +1083,11 @@ function renderBusinessList(businesses) {
   });
 }
 
-// Download results button
 downloadResultsBtn.addEventListener("click", () => {
   const filename = downloadResultsBtn.getAttribute("data-filename");
   const format = downloadResultsBtn.getAttribute("data-format");
   downloadFile(filename, format);
 });
 
-// Load files on startup
+
 loadFiles();
