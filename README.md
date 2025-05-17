@@ -181,14 +181,14 @@ Results are saved with the following columns:
 
 ## 🔒 Limitations
 
-- Limited to ~300 results per search
-- VPN recommended for extensive use
+- Limited to ~1000 results per search
+- Rotating proxies recommended for extensive use
 - Consider file storage persistence for production deployments
 
 ## 🛠️ Customization
 
 - **Port**: Change the web server port by setting the `PORT` environment variable
-- **Results Limit**: Modify the maximum results in `puppeteer-scraper-module.js`
+- **Results Limit**: Modify the maximum results in `puppeteer-scraper-module.js` and adjust UI values in public/app/index.html
 - **URL Routing**: The application uses clean URL paths without file extensions
 
 ## 🔄 How It Works
