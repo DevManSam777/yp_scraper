@@ -19,7 +19,7 @@
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Nunito Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
   color: var(--dark-color);
   background-color: #f5f5f5;
@@ -43,6 +43,7 @@ header {
 header h1 {
   margin: 0;
   font-size: 1.8rem;
+  font-family: "Zen Dots";
 }
 
 header p {
@@ -372,7 +373,6 @@ button:disabled {
   font-size: 0.9rem;
 }
 
-
 .spinner {
   display: inline-block;
   width: 1rem;
@@ -492,21 +492,19 @@ button:disabled {
   gap: 0.5rem;
 }
 
-
 .table-scroll-container {
   width: 100%;
   overflow-x: auto;
   margin-bottom: 1rem;
-  -webkit-overflow-scrolling: touch; 
+  -webkit-overflow-scrolling: touch;
 }
-
 
 .csv-preview-table {
   min-width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  table-layout: auto; 
-  white-space: nowrap; 
+  table-layout: auto;
+  white-space: nowrap;
 }
 
 .csv-preview-table th {
@@ -540,7 +538,6 @@ button:disabled {
 .csv-preview-table .col-name {
   min-width: 120px;
 }
-
 
 .csv-preview-table tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.05);
@@ -580,7 +577,6 @@ button:disabled {
   color: white !important;
   font-weight: 500;
 }
-
 
 @media (max-width: 768px) {
   header h1 {
@@ -650,7 +646,6 @@ button:disabled {
     font-size: 12px;
   }
 }
-
 
 @media (prefers-color-scheme: dark) {
   :root {

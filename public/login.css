@@ -35,7 +35,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Nunito Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
@@ -73,6 +73,7 @@ body {
   text-align: center;
   color: var(--text-color);
   position: relative;
+  font-family: "Zen Dots"
 }
 
 .login-container h1::after {
