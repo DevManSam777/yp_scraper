@@ -64,11 +64,14 @@ This will:
 1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
 2. Enable Email/Password authentication
 3. Register a web app in your Firebase project
-    - Add users manually from firebase console since we don't want sign ups via web app
-4. Update the Firebase configuration in:
+    - Add users manually from firebase console since we don't want sign ups via the web app
+4. Update the Firebase configuration (public keys) in:
    - `public/login.html`
    - `public/index.html` (logout functionality)
-5. Add your development and production domains to Firebase authorized domains
+
+![Firebase Config Image](public/assets/firebase_config.webp)
+  
+6. Add your development and production domains to Firebase authorized domains
 
 ## 🚀 Usage
 
@@ -117,7 +120,7 @@ The application can be deployed to any platform that supports Docker containers:
 
 When deployed, consider your file storage strategy:
 - Docker containers typically use ephemeral storage
-- Files may be lost during container restarts or redeployments
+- Files will be lost during container restarts or redeployments
 - For production, consider:
   - Downloading files immediately after generation
   - Mounting persistent volumes
