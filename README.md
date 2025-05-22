@@ -181,7 +181,7 @@ Results are saved with the following columns:
 
 ## ⚠️ Important Notes
 
-- Neither this application nor it's creator are affiliated in any way, shape, or form with yellowpages.com
+- Neither this application nor it's creator are affiliated in any way, shape, or form with Yellowpages.com
 - For educational and demonstration purposes only
 - Only works with YellowPages.com
 - Please refer to YellowPages.com Terms of Service before using
