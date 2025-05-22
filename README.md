@@ -40,6 +40,9 @@ npm install
 mkdir -p json_results csv_results
 ```
 
+- **Note:** _You can run the scraper in the command-line without dockerizing or spinning up the server.  To get started with CLI scroll down to usage and follow the instructions._ 
+
+
 ### Docker Installation (From Docker Desktop)
 
 1. Clone the repository:
@@ -75,7 +78,7 @@ This will:
 
 ## 🚀 Usage
 
-### Command-line Interface
+### 1. Command-line Interface
 
 Run the scraper in interactive mode:
 ```bash
@@ -88,7 +91,7 @@ You'll be prompted to enter:
 - Number of results to collect
 - How to save the results (JSON or CSV)
 
-### Web Interface
+### 2. Web Interface
 
 1. Start the web server:
 ```bash
