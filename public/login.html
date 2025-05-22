@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YP Scraper - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Zen+Dots&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="icon" href="assets/yellow_book.png" />
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-logo">
+        <i class="fas fa-search"></i>
+      </div>
+      <h1 class="zen-dots">YP SCRAPER</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <div class="input-with-icon">
+            <i class="fas fa-envelope"></i>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-with-icon">
+            <i class="fas fa-lock"></i>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <a class="forgot-password" id="forgotPasswordLink"
+            >Forgot password?</a
+          >
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+        <button type="submit" class="login-btn">Sign In</button>
+      </form>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        browserSessionPersistence,
+        setPersistence,
+        sendPasswordResetEmail,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+       // replace these with your Firebase configuration from firebase console
+      const firebaseConfig = {
+        apiKey: "your-api-key",
+        authDomain: "your-authDomain",
+        projectId: "your-projectID",
+        storageBucket: "your-storageBucket",
+        messagingSenderId: "your-messagingSenderID",
+        appId: "your-appID",
+      };
+
+      // initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      // Promise-based auth state verification
+      function getCurrentUser() {
+        return new Promise((resolve, reject) => {
+          const unsubscribe = onAuthStateChanged(
+            auth,
+            (user) => {
+              unsubscribe(); // unsubscribe once we have the answer
+              resolve(user);
+            },
+            reject
+          );
+        });
+      }
+
+      // check auth state and redirect if needed
+      async function checkAuthAndRedirect() {
+        try {
+          const user = await getCurrentUser();
+
+          if (user) {
+            // user is already signed in, redirect to app
+            console.log("User already authenticated, redirecting to app");
+            window.location.replace("/app");
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error("Auth check error:", error);
+          return false;
+        }
+      }
+
+      // start auth check
+      checkAuthAndRedirect();
+
+      // handle login form submission
+      const loginForm = document.getElementById("loginForm");
+      const errorMessage = document.getElementById("errorMessage");
+      const emailInput = document.getElementById("email");
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = document.getElementById("password").value;
+
+        // disable form during login attempt
+        const submitBtn = loginForm.querySelector("button[type='submit']");
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+        try {
+          // set persistence and then sign in
+          await setPersistence(auth, browserSessionPersistence);
+
+          // sign in with email and password
+          await signInWithEmailAndPassword(auth, email, password);
+
+          // navigate to main page, use replace to avoid history 
+          window.location.replace("/app");
+        } catch (error) {
+          // show error message
+          console.error("Login error:", error);
+          errorMessage.textContent = getErrorMessage(error.code);
+          errorMessage.style.display = "block";
+
+          // re-enable form
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = "Sign In";
+        }
+      });
+
+      // handle forgot password link
+      const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+      forgotPasswordLink.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+
+        if (!email) {
+          errorMessage.textContent = "Please enter your email address first.";
+          errorMessage.style.display = "block";
+          return;
+        }
+
+        try {
+          await sendPasswordResetEmail(auth, email);
+          errorMessage.textContent =
+            "Password reset email sent. Check your inbox.";
+          errorMessage.style.display = "block";
+          errorMessage.style.backgroundColor = "rgba(40, 167, 69, 0.08)";
+          errorMessage.style.color = "#28a745";
+        } catch (error) {
+          errorMessage.textContent =
+            "Failed to send reset email. " + getErrorMessage(error.code);
+          errorMessage.style.display = "block";
+          errorMessage.style.backgroundColor = "rgba(220, 53, 69, 0.08)";
+          errorMessage.style.color = "#dc3545";
+        }
+      });
+
+      function getErrorMessage(errorCode) {
+        switch (errorCode) {
+          case "auth/wrong-password":
+            return "Invalid email or password.";
+          case "auth/user-not-found":
+            return "No user found with this email.";
+          case "auth/invalid-email":
+            return "Please enter a valid email address.";
+          case "auth/user-disabled":
+            return "This account has been disabled.";
+          case "auth/too-many-requests":
+            return "Too many unsuccessful login attempts. Please try again later.";
+          default:
+            return "Invalid email or password.";
+        }
+      }
+    </script>
+  </body>
+</html>

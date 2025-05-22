@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YP Scraper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Zen+Dots&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="icon" href="../assets/yellow_book.png" />
+    <link rel="stylesheet" href="app.css" ; />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1 class="zen-dot"><i class="fas fa-search"></i> YP SCRAPER</h1>
+        <p>Find and collect business information on the go</p>
+      </div>
+    </header>
+    <div style="position: absolute; top: 10px; right: 15px">
+      <button
+        id="logoutBtn"
+        style="background: none; border: none; color: white; cursor: pointer"
+      >
+        <i class="fas fa-sign-out-alt"></i> Sign out
+      </button>
+    </div>
+    <nav>
+      <button id="searchTabBtn" class="active">
+        <i class="fas fa-search"></i> Search
+      </button>
+      <button id="resultsTabBtn"><i class="fas fa-list"></i> Results</button>
+      <button id="filesTabBtn"><i class="fas fa-file"></i> Files</button>
+    </nav>
+
+    <main>
+      <div class="container">
+        <!-- Search Tab -->
+        <div id="searchTab" class="tab-content active">
+          <div class="card">
+            <div class="card-header">Search Parameters</div>
+            <div class="card-body">
+              <form id="searchForm">
+                <div class="form-group">
+                  <label for="query">What are you looking for?</label>
+                  <input
+                    type="text"
+                    id="query"
+                    name="query"
+                    placeholder="e.g., pizza, plumbers, coffee shops"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="location">Where?</label>
+                  <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    placeholder="e.g., 90210, Los Angeles, CA"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="numResults">How many results? (5-1000)</label>
+                  <div class="range-container">
+                    <input
+                      type="range"
+                      id="numResults"
+                      name="numResults"
+                      min="5"
+                      max="1000"
+                      value="30"
+                      step="5"
+                    />
+                    <span class="range-value" id="numResultsValue">30</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="saveFormat">Save format:</label>
+                  <select id="saveFormat" name="saveFormat">
+                    <option value="json">JSON</option>
+                    <option value="csv">CSV</option>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn-block" id="searchBtn">
+                  <i class="fas fa-search"></i> Start Search
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Progress Card (hidden initially) -->
+          <div class="card progress-container" id="progressContainer">
+            <div class="card-header">Search Progress</div>
+            <div class="card-body">
+              <div class="progress-bar">
+                <div class="progress-bar-inner" id="progressBar"></div>
+              </div>
+              <div class="status-message" id="statusMessage">
+                Starting search...
+              </div>
+
+              <div style="margin-top: 1rem; text-align: center">
+                <button id="cancelSearchBtn" class="btn-danger">
+                  <i class="fas fa-stop-circle"></i> Cancel Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Tab -->
+        <div id="resultsTab" class="tab-content">
+          <div class="results-summary" id="resultsSummary">
+            <h3>No search results yet</h3>
+            <p>Start a search to see results here</p>
+          </div>
+
+          <div class="card" id="resultsActions" style="display: none">
+            <div class="card-body" style="display: flex; gap: 0.5rem">
+              <button id="downloadResultsBtn" class="btn-block">
+                <i class="fas fa-download"></i> Download Results
+              </button>
+            </div>
+          </div>
+
+          <div id="businessList" class="business-list">
+            <!-- Business items will be appended here -->
+          </div>
+        </div>
+
+        <!-- Files Tab -->
+        <div id="filesTab" class="tab-content">
+          <div class="card">
+            <div class="card-header">Saved Files</div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="fileFormatFilter">File format:</label>
+                <select id="fileFormatFilter">
+                  <option value="json">JSON</option>
+                  <option value="csv">CSV</option>
+                </select>
+              </div>
+
+              <ul class="file-list" id="fileList">
+                <!-- File items will be appended here -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast notifications container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- File Preview Modal -->
+    <div id="filePreviewModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="filePreviewTitle">File Preview</h3>
+          <button class="modal-close" id="closeFilePreviewBtn">&times;</button>
+        </div>
+        <div class="modal-body" id="filePreviewContent">
+          <!-- File content will be rendered here -->
+        </div>
+        <div class="modal-footer">
+          <button id="filePreviewDownloadBtn">
+            <i class="fas fa-download"></i> Download
+          </button>
+          <button id="closePreviewBtn">Close</button>
+        </div>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        browserSessionPersistence,
+        setPersistence,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+      // replace these with your Firebase configuration from firebase console
+      const firebaseConfig = {
+        apiKey: "your-api-key",
+        authDomain: "your-authDomain",
+        projectId: "your-projectID",
+        storageBucket: "your-storageBucket",
+        messagingSenderId: "your-messagingSenderID",
+        appId: "your-appID",
+      };
+
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+
+      setPersistence(auth, browserSessionPersistence);
+
+
+      document.body.style.display = "none";
+
+      const loadingIndicator = document.createElement("div");
+      loadingIndicator.style.position = "fixed";
+      loadingIndicator.style.top = "50%";
+      loadingIndicator.style.left = "50%";
+      loadingIndicator.style.transform = "translate(-50%, -50%)";
+      loadingIndicator.style.textAlign = "center";
+      loadingIndicator.innerHTML = `
+    <div style="width: 40px; height: 40px; border: 4px solid #ffc107; border-radius: 50%; border-top-color: transparent; margin: 0 auto 15px; animation: spin 1s linear infinite;"></div>
+    <div style="color: #ffc107; font-family: 'Segoe UI', sans-serif; font-weight: bold;">Verifying authentication...</div>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+  `;
+      document.body.appendChild(loadingIndicator);
+      function getCurrentUser() {
+        return new Promise((resolve, reject) => {
+          const unsubscribe = onAuthStateChanged(
+            auth,
+            (user) => {
+              unsubscribe(); 
+              resolve(user);
+            },
+            reject
+          );
+        });
+      }
+      async function checkAuthAndUpdateUI() {
+        try {
+          const user = await getCurrentUser();
+
+          if (loadingIndicator.parentNode) {
+            loadingIndicator.parentNode.removeChild(loadingIndicator);
+          }
+
+          if (user) {
+            document.body.style.display = "block";
+          } else {
+            console.log("No authenticated user found, redirecting to login");
+            window.location.replace("/login");
+          }
+        } catch (error) {
+          console.error("Auth check error:", error);
+          window.location.replace("/login");
+        }
+      }
+
+      checkAuthAndUpdateUI();
+
+      document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        if (!confirm("Are you sure you want to sign out?")) {
+          return; 
+        }
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        const originalContent = logoutBtn.innerHTML;
+        logoutBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+        logoutBtn.disabled = true;
+
+        auth
+          .signOut()
+          .then(() => {
+            window.location.replace("/login");
+          })
+          .catch((error) => {
+            console.error("Logout error:", error);
+            logoutBtn.innerHTML = originalContent;
+            logoutBtn.disabled = false;
+            alert("Error signing out. Please try again.");
+          });
+      });
+
+      window.addEventListener("popstate", function (event) {
+        if (auth.currentUser && window.location.pathname.includes("/login")) {
+          window.history.pushState(null, "", "/app");
+        }
+      });
+    </script>
+    <script src="app.js" type="module"></script>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
