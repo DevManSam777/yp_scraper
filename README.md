@@ -26,7 +26,7 @@ A Node.js application for scraping business information from YellowPages.com. Av
 
 1. Clone the repository:
 ```bash
-git clone git@github.com:DevManSam777/yp-scraper-docker.git
+git clone git@github.com:DevManSam777/yp_scraper.git
 cd yp-webscraper-docker
 ```
 
@@ -44,7 +44,7 @@ mkdir -p json_results csv_results
 
 1. Clone the repository:
 ```bash
-git clone git@github.com:DevManSam777/yp-scraper-docker.git
+git clone git@github.com:DevManSam777/yp_scraper.git
 cd yp-webscraper-docker
 ```
 
