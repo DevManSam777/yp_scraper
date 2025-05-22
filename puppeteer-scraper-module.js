@@ -8,14 +8,14 @@ const path = require("path");
 class YellowPagesPuppeteerScraper {
   constructor(statusCallback = null) {
     this.baseUrl = "https://www.yellowpages.com";
-    this.resultsPerPage = 30; // YellowPages typically shows 30 results per page
+    this.resultsPerPage = 30; // yellowPages typically shows 30 results per page
     this.maxRetries = 3; // max retries per page if blocked
     this.retryDelayMs = 5000; //  delay between retries (for blocking on a single page)
     this.maxResultsLimit = 1000; // set an upper limit on the total number of results to collect
     this.jsonDir = "json_results";
     this.csvDir = "csv_results";
-    this.statusCallback = statusCallback; // Function to report status updates
-    this.headlessMode = true; // Set to false to see the browser by default
+    this.statusCallback = statusCallback; // function to report status updates
+    this.headlessMode = true; // set to false to see the browser by default
 
     // create directories if they don't exist
     this.ensureDirectoriesExist();
@@ -98,7 +98,7 @@ class YellowPagesPuppeteerScraper {
   }
 
   async scrapePageWithRetries(page, url, pageNumber) {
-    // Update status if callback provided
+    // update status if callback provided
     if (this.statusCallback) {
       this.statusCallback(`Processing page ${pageNumber}...`);
     }
@@ -151,12 +151,12 @@ class YellowPagesPuppeteerScraper {
         // check if blocked by content -> do this after checking status
         const isBlocked = await page.evaluate(() => {
           const text = document.body.textContent.toLowerCase();
-          // More specific checks based on potential Yellow Pages blocking indicators
+          // checks based on potential Yellow Pages blocking indicators
           return (
             text.includes("unusual activity detected") ||
             text.includes("robot check") ||
             document.querySelector('iframe[title="reCAPTCHA"]')
-          ); // Look for the reCAPTCHA iframe
+          ); // look for the reCAPTCHA iframe
         });
 
         if (isBlocked) {
@@ -165,9 +165,9 @@ class YellowPagesPuppeteerScraper {
 
         // wait for results to load
         try {
-          // Increased timeout and trying a broader selector as a starting point
+          // increased timeout and trying a broader selector as a starting point
           await page.waitForSelector(".search-results", { timeout: 60000 });
-          // Then wait for the actual result elements within the search results
+          // then wait for the actual result elements within the search results
           await page.waitForSelector(
             ".search-results .result, .search-results article",
             { timeout: 30000 }
@@ -253,7 +253,7 @@ class YellowPagesPuppeteerScraper {
                 !href.startsWith("tel:") &&
                 !href.startsWith("#") &&
                 (href.startsWith("http") || href.startsWith("https")) &&
-                href.split("/").filter(Boolean).length > 1 // Basic check: more than just domain root
+                href.split("/").filter(Boolean).length > 1 
               ) {
                 website = href;
                 break;
@@ -294,7 +294,7 @@ class YellowPagesPuppeteerScraper {
         console.error(`Page ${pageNumber}: Error or Blocked -`, error.message);
         attempts++;
 
-        // Update status about retries - DON'T PASS PAGE OR BUSINESS COUNT
+        // update status about retries, DON'T PASS PAGE OR BUSINESS COUNT
         if (this.statusCallback) {
           this.statusCallback(
             `Retry ${attempts}/${this.maxRetries} for page ${pageNumber}...`
@@ -339,7 +339,7 @@ class YellowPagesPuppeteerScraper {
     try {
       console.log("Launching browser...");
 
-      // Update status if callback provided - ONLY PASS MESSAGE
+      // update status if callback provided, ONLY PASS MESSAGE
       if (this.statusCallback) {
         this.statusCallback("Launching browser...");
       }
@@ -352,7 +352,7 @@ class YellowPagesPuppeteerScraper {
           "--disable-dev-shm-usage",
           "--disable-accelerated-2d-canvas",
           "--disable-gpu",
-          "--window-size=1920,1080", // set a realistic window size
+          "--window-size=1920,1080", // set realistic window size
           "--disable-extensions",
           // stealth plugin handles many detection args
           "--enable-features=VaapiVideoDecoder", // mimic real browser features
@@ -367,7 +367,7 @@ class YellowPagesPuppeteerScraper {
 
       console.log(`Scraping for up to ${effectiveTargetResults} results...`);
 
-      // Update status if callback provided - ONLY PASS MESSAGE
+      // update status if callback provided, ONLY PASS MESSAGE
       if (this.statusCallback) {
         this.statusCallback(`Searching for "${query}" in "${location}"...`);
       }
@@ -432,7 +432,7 @@ class YellowPagesPuppeteerScraper {
             `Current total unique businesses collected: ${allBusinesses.length}`
           );
 
-          // Update status if callback provided - PASS PAGE AND BUSINESS COUNT
+          // update status if callback provided, PASS PAGE AND BUSINESS COUNT
           if (this.statusCallback) {
             this.statusCallback(
               `Found ${allBusinesses.length} businesses so far...`,
@@ -461,7 +461,7 @@ class YellowPagesPuppeteerScraper {
               pageDelay / 1000
             } seconds before next page... (Start Time: ${startTime})`
           );
-          await this.delay(pageDelay); // Ensure we're calling custom delay function
+          await this.delay(pageDelay); // ensure we're calling custom delay function
           const endTime = Date.now();
           const actualDelay = endTime - startTime;
           console.log(
@@ -495,7 +495,7 @@ class YellowPagesPuppeteerScraper {
     } catch (error) {
       console.error("Error in search:", error);
 
-      // Update status if callback provided
+      // update status if callback provided
       if (this.statusCallback) {
         this.statusCallback(`Error: ${error.message}`, 0, 0, error.message);
       }
@@ -693,10 +693,10 @@ exportToJSON(businesses, filename, append = false) {
     finalBusinesses = this.mergeResults(existing, businesses);
   }
 
-  // Sort businesses alphabetically by business name
+  // sort businesses alphabetically by business name
   finalBusinesses.sort((a, b) => {
-    // Use localeCompare for proper alphabetical sorting
-    // This handles case sensitivity and special characters properly
+    // use localeCompare for alphabetical sorting
+    // this handles case sensitivity and special characters properly
     return (a.businessName || "").localeCompare(b.businessName || "");
   });
 
@@ -731,18 +731,18 @@ exportToCSV(businesses, filename, append = false) {
     "ZIP Code",
   ];
 
-  // Get the full path for the file
+  // get the full path for the file
   const fullPath = path.join(this.csvDir, filename);
   const fileExists = fs.existsSync(fullPath);
   
-  // For appending to existing file, we need to read the existing content
+  // for appending to existing file, we need to read the existing content
   let existingBusinesses = [];
   if (append && fileExists) {
     try {
       const existingContent = fs.readFileSync(fullPath, 'utf8');
       const lines = existingContent.split('\n').filter(line => line.trim());
       
-      // Skip header row
+      // skip header row
       if (lines.length > 1) {
         for (let i = 1; i < lines.length; i++) {
           const cells = this.parseCSVLine(lines[i]);
@@ -762,14 +762,14 @@ exportToCSV(businesses, filename, append = false) {
       }
     } catch (error) {
       console.error(`Error reading existing CSV file: ${error.message}`);
-      // Continue with empty existing businesses if there's an error
+      // continue with empty existing businesses if there's an error
     }
   }
   
-  // Combine businesses and sort alphabetically
+  // combine businesses and sort alphabetically
   let finalBusinesses = [...businesses];
   if (append && existingBusinesses.length > 0) {
-    // Merge without duplicates (simple merge, not using mergeResults for simplicity)
+    // merge without duplicates (simple merge, not using mergeResults)
     const businessNameSet = new Set(finalBusinesses.map(b => b.businessName));
     existingBusinesses.forEach(b => {
       if (!businessNameSet.has(b.businessName)) {
@@ -779,15 +779,15 @@ exportToCSV(businesses, filename, append = false) {
     });
   }
   
-  // Sort businesses alphabetically by business name
+  // sort businesses alphabetically by business name
   finalBusinesses.sort((a, b) => {
     return (a.businessName || "").localeCompare(b.businessName || "");
   });
 
-  // Create CSV content with headers
+  // create CSV content with headers
   let csvContent = headers.join(",") + "\n";
 
-  // Add sorted business data
+  // add sorted business data
   finalBusinesses.forEach((business) => {
     const row = [
       this.escapeCSV(business.businessName || ""),
@@ -804,12 +804,12 @@ exportToCSV(businesses, filename, append = false) {
   });
 
   try {
-    // Make sure the directory exists
+    // make sure the directory exists
     if (!fs.existsSync(this.csvDir)) {
       fs.mkdirSync(this.csvDir, { recursive: true });
     }
 
-    // Always write the full file with headers (not appending)
+    // write the full file with headers (not appending)
     fs.writeFileSync(fullPath, csvContent, "utf8");
     console.log(
       `Results saved to '${filename}' in ${this.csvDir} directory (Total: ${finalBusinesses.length} businesses)`
@@ -819,7 +819,7 @@ exportToCSV(businesses, filename, append = false) {
   }
 }
 
-// Add a helper function to parse CSV lines
+// add a helper function to parse CSV lines
 parseCSVLine(line) {
   const result = [];
   let cell = "";
@@ -829,26 +829,26 @@ parseCSVLine(line) {
     const char = line[i];
 
     if (char === '"') {
-      // Handle quotes
+      // handle quotes
       if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-        // Escaped quote inside a quoted field
+        // escaped quote inside a quoted field
         cell += '"';
         i++; // Skip the next quote
       } else {
-        // Toggle quote state
+        // toggle quote state
         inQuotes = !inQuotes;
       }
     } else if (char === "," && !inQuotes) {
-      // End of cell
+      // end of cell
       result.push(cell);
       cell = "";
     } else {
-      // Add character to current cell
+      // add character to current cell
       cell += char;
     }
   }
 
-  // Add the last cell
+  // add the last cell
   result.push(cell);
   return result;
 }

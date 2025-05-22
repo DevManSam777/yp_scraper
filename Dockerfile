@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Install Chrome dependencies
+# install Chrome dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -20,33 +20,33 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Chrome
+# install Chrome
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
     && apt-get install -y google-chrome-stable --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
+# copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy all project files
+# copy all project files
 COPY . .
 
-# Create directories for results
+# create directories for results
 RUN mkdir -p json_results csv_results
 
-# Set environment variables
+# set environment variables
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ENV PORT=10000
 
-# Expose port for web interface
+# expose port for web interface
 EXPOSE 10000
 
-# Start the web server
+# start the web server
 CMD ["node", "web-server.js"]

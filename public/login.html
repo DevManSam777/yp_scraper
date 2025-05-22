@@ -79,17 +79,17 @@
         appId: "1:221521626432:web:3eb88a13abcf620931e6a5",
       };
 
-      // Initialize Firebase
+      // initialize Firebase
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
 
-      // Modern Promise-based auth state verification
+      // Promise-based auth state verification
       function getCurrentUser() {
         return new Promise((resolve, reject) => {
           const unsubscribe = onAuthStateChanged(
             auth,
             (user) => {
-              unsubscribe(); // Unsubscribe once we have the answer
+              unsubscribe(); // unsubscribe once we have the answer
               resolve(user);
             },
             reject
@@ -97,13 +97,13 @@
         });
       }
 
-      // Check auth state and redirect if needed
+      // check auth state and redirect if needed
       async function checkAuthAndRedirect() {
         try {
           const user = await getCurrentUser();
 
           if (user) {
-            // User is already signed in, redirect to app
+            // user is already signed in, redirect to app
             console.log("User already authenticated, redirecting to app");
             window.location.replace("/app");
             return true;
@@ -115,10 +115,10 @@
         }
       }
 
-      // Start auth check
+      // start auth check
       checkAuthAndRedirect();
 
-      // Handle login form submission
+      // handle login form submission
       const loginForm = document.getElementById("loginForm");
       const errorMessage = document.getElementById("errorMessage");
       const emailInput = document.getElementById("email");
@@ -129,34 +129,34 @@
         const email = emailInput.value.trim();
         const password = document.getElementById("password").value;
 
-        // Disable form during login attempt
+        // disable form during login attempt
         const submitBtn = loginForm.querySelector("button[type='submit']");
         submitBtn.disabled = true;
         submitBtn.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
         try {
-          // Set persistence and then sign in
+          // set persistence and then sign in
           await setPersistence(auth, browserSessionPersistence);
 
-          // Sign in with email and password
+          // sign in with email and password
           await signInWithEmailAndPassword(auth, email, password);
 
-          // Navigate to main page - use replace to avoid history issues
+          // navigate to main page, use replace to avoid history 
           window.location.replace("/app");
         } catch (error) {
-          // Show error message
+          // show error message
           console.error("Login error:", error);
           errorMessage.textContent = getErrorMessage(error.code);
           errorMessage.style.display = "block";
 
-          // Re-enable form
+          // re-enable form
           submitBtn.disabled = false;
           submitBtn.innerHTML = "Sign In";
         }
       });
 
-      // Handle forgot password link
+      // handle forgot password link
       const forgotPasswordLink = document.getElementById("forgotPasswordLink");
       forgotPasswordLink.addEventListener("click", async () => {
         const email = emailInput.value.trim();
