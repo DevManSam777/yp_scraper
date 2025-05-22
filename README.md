@@ -65,7 +65,7 @@ This will:
 2. Enable Email/Password authentication
 3. Register a web app in your Firebase project
     - Add users manually from firebase console since we don't want sign ups via the web app
-4. Update the Firebase configuration (public keys) in:
+4. Update the Firebase configuration (these are public keys that can be safely exposed) in:
    - `public/login.html`
    - `public/index.html` (logout functionality)
 
