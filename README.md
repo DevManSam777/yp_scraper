@@ -17,8 +17,9 @@ A Node.js application for scraping business information from YellowPages.com. Av
 - [Limitations](#-limitations)
 - [Customization](#-customization)
 - [How It Works](#-how-it-works)
+- [License](#-license)
 
-## 📋 Features
+## Features
 **User Authentication:**
 - Firebase email/password login
 - Password reset functionality
@@ -37,7 +38,7 @@ A Node.js application for scraping business information from YellowPages.com. Av
 - Mobile-friendly web interface w/ light and dark themes
 - Command-line interface for scripts and automation
 
-## 🔧 Installation
+## Installation
 ### Standard Installation
 Clone the repository:
 ```bash
@@ -75,7 +76,7 @@ This will:
 - Mount the necessary volumes for file storage
 - Map port 3000 to the container
 
-## 🔐 Firebase Authentication Setup
+## Firebase Authentication Setup
 1. Create a Firebase project at console.firebase.google.com
 2. Enable Email/Password authentication
 3. Register a web app in your Firebase project
@@ -89,7 +90,7 @@ This will:
  
 6. Add your development and production domains to Firebase authorized domains
 
-## 🚀 Usage
+## Usage
 ### 1. Command-line Interface (CLI)
 
 ![YP Scraper CLI](./public/assets/yp_cli.webp)
@@ -127,7 +128,7 @@ Use the interface to:
 - View and manage results
 - Preview and download files
 
-## 🌍 Deployment
+## Deployment
 
 ### Deploy to Render (Recommended)
 Render offers native support for running containerized apps and services at scale, making it perfect for this Docker-based application.
@@ -169,23 +170,23 @@ Render offers native support for running containerized apps and services at scal
 
 **Important Render Considerations:**
 
-⚠️ **Free Tier Limitations:**
+**Free Tier Limitations:**
 - Apps sleep after 15 minutes of inactivity (causes ~50 second cold start)
 - 750 hours/month of runtime total for ALL projects, not EACH
 - No persistent disk storage on free tier
 
-💰 **Recommended:** Upgrade to a paid plan for persistent storage and no sleep mode.
+**Recommended:** Upgrade to a paid plan for persistent storage and no sleep mode.
 
-💡 **Free Tier Pro-Tip:** Use [cron-job.org](https://cron-job.org) to send an HTTP request to your app every 10 minutes to prevent it from spinning down due to inactivity (use at your own risk).
+**Free Tier Pro-Tip:** Use [cron-job.org](https://cron-job.org) to send an HTTP request to your app every 10 minutes to prevent it from spinning down due to inactivity (use at your own risk).
 
-💾 **File Storage Strategy:**
+**File Storage Strategy:**
 Since Render uses ephemeral storage:
 - **Generated files (JSON/CSV) are temporary** and lost on restarts
 - **Recommended approach:** Users should download files immediately after generation
 - **Alternative:** Upgrade to paid plan with persistent disk storage
 - **Advanced users:** Link a database to store file metadata and results for persistence
 
-🔄 **Automatic Deployments:**
+**Automatic Deployments:**
 - Every git push to your main branch triggers a new deployment
 - Zero-downtime deployments ensure no service interruption
 
@@ -196,7 +197,7 @@ The application can also be deployed to other Docker-supporting platforms:
 - **DigitalOcean App Platform:** Managed infrastructure
 - **Heroku:** Using container registry deployment
 
-## 🌐 Web Interface Features
+## Web Interface Features
 The web interface provides:
 
 - **Clean URL Routing:** User-friendly URLs without .html extensions:
@@ -210,7 +211,7 @@ The web interface provides:
 - **File Preview:** Quick view of saved results
 - **Responsive Design:** Works on mobile devices
 
-## 📊 Output Format
+## Output Format
 ### JSON Example
 ```json
 [
@@ -241,7 +242,7 @@ Results are saved with the following columns:
 - State
 - ZIP Code
 
-## ⚠️ Important Notes
+## Important Notes
 - Neither this application nor it's creator are affiliated in any way, shape, or form with Yellowpages.com
 - For educational and demonstration purposes only
 - Only works with YellowPages.com
@@ -250,17 +251,17 @@ Results are saved with the following columns:
 - Use carefully and responsibly
 - Use at your own discretion and risk
 
-## 🔒 Limitations
+## Limitations
 - Limited to ~1000 results per search
 - Rotating proxies recommended for extensive use
 - Consider file storage persistence for production deployments
 
-## 🛠️ Customization
+## Customization
 - **Port:** Change the web server port by setting the PORT environment variable
 - **Results Limit:** Modify the maximum results in `puppeteer-scraper-module.js` and adjust UI values in `public/app/index.html`
 - **URL Routing:** The application uses clean URL paths without file extensions
 
-## 🔄 How It Works
+## How It Works
 The scraper uses Puppeteer with stealth plugins to navigate YellowPages search results and extract business information. The application architecture includes:
 
 - `puppeteer-scraper-module.js`: Core scraper functionality
@@ -268,3 +269,6 @@ The scraper uses Puppeteer with stealth plugins to navigate YellowPages search r
 - `web-server.js`: Web server & API endpoints with clean URL routing
 - `public/index.html`: Web interface
 - `public/login.html`: Authentication interface
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
