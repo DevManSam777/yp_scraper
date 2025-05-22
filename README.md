@@ -17,7 +17,7 @@ A Node.js application for scraping business information from YellowPages.com. Av
 - **Data Management**:
   - Save results as JSON or CSV files
   - Browse, preview, and manage saved results
-  - Mobile-friendly web interface
+  - Mobile-friendly web interface w/ light and dark themes
   - Command-line interface for scripts and automation
 
 ## 🔧 Installation
@@ -80,6 +80,8 @@ This will:
 
 ### 1. Command-line Interface
 
+![YP Scraper Command-Line-Interface](public/assets/yp_cli.webp)
+
 Run the scraper in interactive mode:
 ```bash
 npm run search
@@ -92,6 +94,8 @@ You'll be prompted to enter:
 - How to save the results (JSON or CSV)
 
 ### 2. Web Interface
+
+![YP Scraper GUI](public/assets/yp_scraper_collage.webp)
 
 1. Start the web server:
 ```bash

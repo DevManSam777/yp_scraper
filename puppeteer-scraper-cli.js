@@ -16,7 +16,7 @@ function question(query) {
 async function main() {
   console.log("\n========================================");
   console.log("                                          ");
-  console.log("   🍕    YellowPages Web Scraper    🍕");
+  console.log("         🍕    YP Scraper    🍕");
   console.log("                                          ");
   console.log("========================================\n");
 
