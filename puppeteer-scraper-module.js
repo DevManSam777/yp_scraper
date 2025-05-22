@@ -360,7 +360,7 @@ class YellowPagesPuppeteerScraper {
           "--no-default-browser-check", // don't check if it's the default browser
           "--disable-translate", // disable translate popup
           "--hide-scrollbars", // hide scrollbars
-          "--incognito", // use incognito mode - good for isolation between page navigations
+          "--incognito", // use incognito mode for isolation between page navigations
         ],
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
       });
