@@ -133,7 +133,7 @@ Use the interface to:
 ## Deployment
 
 ### Deploy to Render (Recommended)
-Render offers native support for running containerized apps and services at scale, making it perfect for this Docker-based application.
+Render offers native support for running containerized apps and services,  making it a great choice for this Dockerized application.
 
 **Prerequisites:**
 - GitHub/GitLab repository with your code
