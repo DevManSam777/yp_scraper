@@ -73,7 +73,7 @@ body {
   text-align: center;
   color: var(--text-color);
   position: relative;
-  font-family: "Zen Dots"
+  font-family: "Zen Dots";
 }
 
 .login-container h1::after {
@@ -168,6 +168,12 @@ body {
 
 .forgot-password:hover {
   text-decoration: underline;
+}
+
+.subdued {
+  font-size: 10px;
+  margin-left: 20px;
+  color: #777777;
 }
 
 @media (max-width: 768px) {
