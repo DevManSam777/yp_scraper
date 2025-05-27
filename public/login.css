@@ -176,6 +176,13 @@ body {
   color: #4cba15;
 }
 
+.github-link {
+  position: absolute;
+  bottom: 4rem;
+  color: var(--text-color);
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   #logoutBtn {
     top: 5px;
