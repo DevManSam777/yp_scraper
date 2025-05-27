@@ -1,5 +1,5 @@
 # YP Scraper
-![YP Scraper Search GUI](./public/assets/yp_scraper_search.webp)
+![YP Scraper Demo](./public/assets/yp_scraper.gif)
 
 A Node.js application for scraping business information from YellowPages.com. Available with both command-line and web interfaces, now featuring Firebase authentication and clean URL routing.
 
@@ -131,6 +131,7 @@ Use the interface to:
 - Preview and download files
 
 ## Deployment
+![YP Scraper Search GUI](./public/assets/yp_scraper_search.webp)
 
 ### Deploy to Render (Recommended)
 Render offers native support for running containerized apps and services,  making it a great choice for this Dockerized application.
