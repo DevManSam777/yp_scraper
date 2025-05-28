@@ -178,7 +178,8 @@ body {
 }
 
 .github-link {
-  margin-top: 3rem;
+  position: relative;
+  top: 5rem;
   color: var(--text-color);
   text-align: center;
 }
