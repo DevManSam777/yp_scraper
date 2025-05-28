@@ -46,6 +46,7 @@ body {
   min-height: 100vh;
   background-color: var(--background-color);
   padding: 20px;
+  gap: 50px;
 }
 
 .login-container {
@@ -179,7 +180,6 @@ body {
 
 .github-link {
   height: 100%;
-  padding-top: 5rem;
   color: var(--text-color);
   text-align: center;
 }
