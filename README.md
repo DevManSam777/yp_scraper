@@ -275,4 +275,6 @@ The scraper uses Puppeteer with stealth plugins to navigate YellowPages search r
 
 ## License
 
-[MIT License](LICENSE)
+[LICENSE](LICENSE)  
+
+Copyright (c) 2025 DevManSam
