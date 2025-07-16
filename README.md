@@ -274,4 +274,5 @@ The scraper uses Puppeteer with stealth plugins to navigate YellowPages search r
 - `public/login.html`: Authentication interface
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+[MIT License](LICENSE)
