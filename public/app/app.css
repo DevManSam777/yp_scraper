@@ -106,6 +106,10 @@ main {
   padding: 1rem 0;
 }
 
+small {
+  font-size: 0.8rem;
+}
+
 .tab-content {
   display: none;
 }
