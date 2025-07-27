@@ -650,10 +650,6 @@ button:disabled {
   #more-entries-container {
     font-size: 12px;
   }
-
-  small {
-    font-size: 0.5rem
-  }
 }
 
 @media (prefers-color-scheme: dark) {
