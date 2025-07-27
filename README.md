@@ -1,6 +1,6 @@
 # YP Scraper
 
-A Node.js application for scraping business information from YellowPages.com. Available with both command-line and web interfaces, now featuring Firebase authentication and clean URL routing.
+A Node.js application for scraping business information from YellowPages.com (US only). Available with both command-line and web interfaces, now featuring Firebase authentication and clean URL routing.
 
 ## 📋 Features
 
