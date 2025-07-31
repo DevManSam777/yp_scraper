@@ -121,7 +121,7 @@ searchForm.addEventListener("submit", async (e) => {
 
   // Disable search button
   searchBtn.disabled = true;
-  searchBtn.innerHTML = '<div class="spinner"></div> Starting...';
+  searchBtn.innerHTML = '<div class="spinner"></div> Scraping...';
 
   // Show progress container
   progressContainer.style.display = "block";
