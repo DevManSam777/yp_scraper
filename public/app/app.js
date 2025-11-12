@@ -1050,6 +1050,19 @@ function renderBusinessList(businesses) {
     const state = business.state || business["State"] || "";
     const zip = business.zipCode || business["ZIP Code"] || "";
 
+    // Prepare website URL (add protocol if missing)
+    let fullWebsiteUrl = "";
+    if (website) {
+      fullWebsiteUrl = website.trim();
+      if (
+        fullWebsiteUrl &&
+        !fullWebsiteUrl.startsWith("http://") &&
+        !fullWebsiteUrl.startsWith("https://")
+      ) {
+        fullWebsiteUrl = "https://" + fullWebsiteUrl;
+      }
+    }
+
     item.innerHTML = `
           <div class="business-header">
             <h3>${name}</h3>
@@ -1058,16 +1071,16 @@ function renderBusinessList(businesses) {
             <div class="business-type">${type}</div>
             <div class="business-contact">${phone}</div>
             <div class="business-website">${
-              website
-                ? `<a href="${website}" target="_blank">${website}</a>`
+              fullWebsiteUrl
+                ? `<a href="${fullWebsiteUrl}" target="_blank">${fullWebsiteUrl}</a>`
                 : "No website"
             }</div>
             <div class="business-address">${street}, ${city}, ${state} ${zip}</div>
-            
+
             <div class="business-actions">
               ${
-                website
-                  ? `<a href="${website}" target="_blank" class="action-website"><i class="fas fa-globe"></i> Website</a>`
+                fullWebsiteUrl
+                  ? `<a href="${fullWebsiteUrl}" target="_blank" class="action-website"><i class="fas fa-globe"></i> Website</a>`
                   : ""
               }
               <a href="https://maps.google.com/?q=${encodeURIComponent(
