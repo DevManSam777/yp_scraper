@@ -4,3 +4,7 @@ json_results/*
 csv_results/*
 !json_results/.gitkeep
 !csv_results/.gitkeep
+.github/
+.dockerignore
+fly.toml
+

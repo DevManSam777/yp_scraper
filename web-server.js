@@ -119,12 +119,15 @@ app.post("/api/search", async (req, res) => {
       const scraper = new YellowPagesPuppeteerScraper(updateSearchStatus);
 
       // run the search
-      updateSearchStatus("Connecting to YellowPages...");
+      updateSearchStatus("Search initiated...");
       const businesses = await scraper.search(
         query,
         location,
         parseInt(numResults, 10)
       );
+
+      // processing post-scraping
+      updateSearchStatus("Processing results...");
 
       // generate filename
       const filename = scraper.generateFilename(query, location, saveFormat);
@@ -135,13 +138,16 @@ app.post("/api/search", async (req, res) => {
 
       // save the results
       updateSearchStatus(
-        `Saving ${businesses.length} results to ${filename}...`
+        `Saving ${businesses.length} results...`
       );
       if (saveFormat === "json") {
         scraper.exportToJSON(businesses, filename, false);
       } else {
         scraper.exportToCSV(businesses, filename, false);
       }
+
+      // close the browser
+      await scraper.close();
 
       // complete the search
       searchStatus.isRunning = false;
@@ -153,6 +159,15 @@ app.post("/api/search", async (req, res) => {
       searchStatus.error = error.message;
       searchStatus.statusMessage = `Error: ${error.message}`;
       console.error("Search error:", error);
+
+      // Try to close browser even on error
+      try {
+        if (scraper && scraper.browser) {
+          await scraper.close();
+        }
+      } catch (closeError) {
+        console.error("Error closing browser:", closeError);
+      }
     }
   };
 

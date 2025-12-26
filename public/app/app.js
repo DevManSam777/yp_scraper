@@ -38,6 +38,8 @@ const toastContainer = document.getElementById("toastContainer");
 let currentSearchStatus = {
   isRunning: false,
   currentFile: null,
+  query: '',
+  location: ''
 };
 
 // Current results
@@ -199,6 +201,14 @@ function updateSearchStatus(status) {
   // Store current file if available
   if (status.currentFile) {
     currentSearchStatus.currentFile = status.currentFile;
+  }
+
+  // Store query and location
+  if (status.query) {
+    currentSearchStatus.query = status.query;
+  }
+  if (status.location) {
+    currentSearchStatus.location = status.location;
   }
 }
 
@@ -946,9 +956,9 @@ async function loadResults(file) {
         // Update summary
         resultsSummary.innerHTML = `
               <h3>${data.totalResults} businesses found</h3>
-              <p>Search for "${extractSearchQuery(
+              <p>Search for "${currentSearchStatus.query || extractSearchQuery(
                 file.name
-              )}" in "${extractSearchLocation(file.name)}"</p>
+              )}" in "${currentSearchStatus.location || extractSearchLocation(file.name)}"</p>
             `;
 
         // Show download button
@@ -992,9 +1002,9 @@ async function loadResults(file) {
       // Update summary
       resultsSummary.innerHTML = `
             <h3>${results.length} businesses found</h3>
-            <p>Search for "${extractSearchQuery(
+            <p>Search for "${currentSearchStatus.query || extractSearchQuery(
               file.name
-            )}" in "${extractSearchLocation(file.name)}"</p>
+            )}" in "${currentSearchStatus.location || extractSearchLocation(file.name)}"</p>
           `;
 
       // Show download button
@@ -1022,14 +1032,18 @@ function extractSearchQuery(filename) {
 
 // Extract search location from filename
 function extractSearchLocation(filename) {
-  // Filename format: query_location_date.ext
+  // Filename format: query_location_timestamp.ext
+  // Example: church_new_jersey_2025-12-25T17-00-40.json
   const parts = filename.split("_");
   if (parts.length < 3) return "Unknown";
 
-  // Location may have multiple parts, so join everything between query and date
-  const datePartIndex = parts.length - 3; // date has 3 parts: mm_dd_yyyy
+  // Timestamp is the last part (contains dashes and .ext)
+  // Location is everything between query (first part) and timestamp (last part)
+  const locationParts = parts.slice(1, -1).filter(part => part.length > 0); // Everything except first and last, filter empty
 
-  return parts.slice(1, datePartIndex).join(" ");
+  if (locationParts.length === 0) return "Unknown";
+
+  return locationParts.join(" ").replace(/_/g, " ");
 }
 
 function renderBusinessList(businesses) {
