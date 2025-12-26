@@ -2,7 +2,7 @@
 
 A Node.js application for scraping business information from YellowPages.com (US only). Available with both command-line and web interfaces, now featuring Firebase authentication and clean URL routing.
 
-## 📋 Features
+## Features
 
 - **User Authentication**:
   - Firebase email/password login
@@ -20,7 +20,7 @@ A Node.js application for scraping business information from YellowPages.com (US
   - Mobile-friendly web interface
   - Command-line interface for scripts and automation
 
-## 🔧 Installation
+## Installation
 
 ### Standard Installation
 
@@ -59,7 +59,7 @@ This will:
 - Mount the necessary volumes for file storage
 - Map port 3000 to the container
 
-## 🔐 Firebase Authentication Setup
+## Firebase Authentication Setup
 
 1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
 2. Enable Email/Password authentication
@@ -73,7 +73,7 @@ This will:
   
 6. Add your development and production domains to Firebase authorized domains
 
-## 🚀 Usage
+## Usage
 
 ### Command-line Interface
 
@@ -108,7 +108,7 @@ http://localhost:3000
    - View and manage results
    - Preview and download files
 
-## 🌍 Deployment
+## Deployment
 
 The application can be deployed to any platform that supports Docker containers:
 
@@ -126,7 +126,7 @@ When deployed, consider your file storage strategy:
   - Mounting persistent volumes
   - Using cloud storage integrations
 
-## 🌐 Web Interface Features
+## Web Interface Features
 
 The web interface provides:
 
@@ -141,7 +141,7 @@ The web interface provides:
 - **File Preview**: Quick view of saved results
 - **Responsive Design**: Works on mobile devices
 
-## 📊 Output Format
+## Output Format
 
 ### JSON Example
 ```json
@@ -172,7 +172,7 @@ Results are saved with the following columns:
 - State
 - ZIP Code
 
-## ⚠️ Important Notes
+## Important Notes
 
 = Neither this application nor it's creator are affiliated in any way, shape, or form with yellowpages.com
 - For educational and demonstration purposes only
@@ -182,19 +182,19 @@ Results are saved with the following columns:
 - Use carefully and responsibly
 - Use at your own discretion and risk
 
-## 🔒 Limitations
+## Limitations
 
 - Limited to ~1000 results per search
 - Rotating proxies recommended for extensive use
 - Consider file storage persistence for production deployments
 
-## 🛠️ Customization
+## Customization
 
 - **Port**: Change the web server port by setting the `PORT` environment variable
 - **Results Limit**: Modify the maximum results in `puppeteer-scraper-module.js` and adjust UI values in public/app/index.html
 - **URL Routing**: The application uses clean URL paths without file extensions
 
-## 🔄 How It Works
+## How It Works
 
 The scraper uses Puppeteer with stealth plugins to navigate YellowPages search results and extract business information. The application architecture includes:
 

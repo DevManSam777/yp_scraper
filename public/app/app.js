@@ -114,11 +114,26 @@ searchForm.addEventListener("submit", async (e) => {
 
   // Get form data
   const formData = new FormData(searchForm);
+
+  // Generate timestamp from browser's local time (date + 12-hour time with seconds)
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  let hours = now.getHours();
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 0 should be 12
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const timestamp = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}${ampm}`;
+
   const searchData = {
     query: formData.get("query"),
     location: formData.get("location"),
     numResults: formData.get("numResults"),
     saveFormat: formData.get("saveFormat"),
+    timestamp: timestamp,
   };
 
   // Disable search button

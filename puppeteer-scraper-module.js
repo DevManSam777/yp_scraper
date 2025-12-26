@@ -126,6 +126,11 @@ class YellowPagesPuppeteerScraper {
         } else {
           this.results = this.results.concat(pageResults);
 
+          // Call incremental save callback if it exists
+          if (this.onPageScraped) {
+            this.onPageScraped(pageResults, currentPage);
+          }
+
           if (statusCallback) {
             statusCallback(`Found ${this.results.length} businesses so far...`, currentPage, this.results.length);
           }
