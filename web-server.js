@@ -266,7 +266,7 @@ app.get("/api/results/:format/:filename", (req, res) => {
       });
     } else {
       // For CSV, generate CSV from database
-      const headers = ['Business Name', 'Business Type', 'Phone', 'Website', 'Street Address', 'City', 'State', 'ZIP Code'];
+      const headers = ['Business Name', 'Business Type', 'Phone', 'Website', 'Street Address', 'Apt Unit', 'City', 'State', 'ZIP Code'];
       const csvRows = [headers.join(',')];
 
       businesses.forEach(b => {
@@ -276,6 +276,7 @@ app.get("/api/results/:format/:filename", (req, res) => {
           b.phone || '',
           b.website || '',
           b.street_address || '',
+          b.apt_unit || '',
           b.city || '',
           b.state || '',
           b.zip_code || ''
@@ -330,7 +331,7 @@ app.get("/download/:format/:filename", (req, res) => {
       res.send(JSON.stringify(results, null, 2));
     } else {
       // For CSV
-      const headers = ['Business Name', 'Business Type', 'Phone', 'Website', 'Street Address', 'City', 'State', 'ZIP Code'];
+      const headers = ['Business Name', 'Business Type', 'Phone', 'Website', 'Street Address', 'Apt Unit', 'City', 'State', 'ZIP Code'];
       const csvRows = [headers.join(',')];
 
       businesses.forEach(b => {
@@ -340,6 +341,7 @@ app.get("/download/:format/:filename", (req, res) => {
           b.phone || '',
           b.website || '',
           b.street_address || '',
+          b.apt_unit || '',
           b.city || '',
           b.state || '',
           b.zip_code || ''

@@ -439,7 +439,7 @@ async function previewFile(filename, format) {
 
         // Add header row based on the first result's properties
         const firstBusiness = results[0];
-        const headers = Object.keys(firstBusiness);
+        const headers = Object.keys(firstBusiness).filter(key => key !== 'fullAddress');
 
         previewHTML += "<tr>";
         headers.forEach((header) => {
@@ -989,24 +989,61 @@ async function loadResults(file) {
     } else if (format === "csv") {
       // For CSV, we'll display a simplified view
       const text = await response.text();
-      const lines = text.split("\n");
-      const headers = lines[0].split(",");
+
+      // Parse CSV properly, handling commas within quoted fields
+      function parseCSVLine(line) {
+        const result = [];
+        let cell = "";
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+
+          if (char === '"') {
+            // Handle quotes
+            if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+              // Escaped quote inside a quoted field
+              cell += '"';
+              i++; // Skip the next quote
+            } else {
+              // Toggle quote state
+              inQuotes = !inQuotes;
+            }
+          } else if (char === "," && !inQuotes) {
+            // End of cell
+            result.push(cell);
+            cell = "";
+          } else {
+            // Add character to current cell
+            cell += char;
+          }
+        }
+
+        // Add the last cell
+        result.push(cell);
+        return result;
+      }
+
+      const lines = text.split("\n").filter((line) => line.trim());
+      const headers = parseCSVLine(lines[0]);
 
       // Convert CSV to array of objects
       const results = [];
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
 
-        const values = lines[i].split(",");
+        const values = parseCSVLine(lines[i]);
         const business = {};
 
         headers.forEach((header, index) => {
-          const value = values[index] || "";
+          let value = values[index] || "";
           // Remove quotes if present
-          business[header.trim().replace(/^"(.+)"$/, "$1")] = value.replace(
-            /^"(.+)"$/,
-            "$1"
-          );
+          value = value.replace(/^"(.+)"$/, "$1");
+          // Also handle empty quoted strings
+          if (value === '""' || value === '"') {
+            value = "";
+          }
+          business[header.trim().replace(/^"(.+)"$/, "$1")] = value;
         });
 
         results.push(business);
@@ -1078,6 +1115,7 @@ function renderBusinessList(businesses) {
     const city = business.city || business["City"] || "";
     const state = business.state || business["State"] || "";
     const zip = business.zipCode || business["ZIP Code"] || "";
+    const apt = business.aptUnit || business["Apt Unit"] || "";
 
     // Prepare website URL (add protocol if missing)
     let fullWebsiteUrl = "";
@@ -1104,7 +1142,7 @@ function renderBusinessList(businesses) {
                 ? `<a href="${fullWebsiteUrl}" target="_blank">${fullWebsiteUrl}</a>`
                 : "No website"
             }</div>
-            <div class="business-address">${street}, ${city}, ${state} ${zip}</div>
+            <div class="business-address">${street}${apt ? ' ' + apt : ''}, ${city}, ${state} ${zip}</div>
 
             <div class="business-actions">
               ${
@@ -1113,7 +1151,7 @@ function renderBusinessList(businesses) {
                   : ""
               }
               <a href="https://maps.google.com/?q=${encodeURIComponent(
-                `${street}, ${city}, ${state} ${zip}`
+                `${street}${apt ? ' ' + apt : ''}, ${city}, ${state} ${zip}`
               )}" target="_blank" class="action-map">
                 <i class="fas fa-map-marker-alt"></i> Map
               </a>

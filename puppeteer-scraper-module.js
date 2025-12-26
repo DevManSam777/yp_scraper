@@ -403,22 +403,27 @@ class YellowPagesPuppeteerScraper {
 
             business.businessType = categories.join(', ');
 
-            // Try multiple selectors for website
-            const websiteSelectors = [
-              '.track-visit-website',
-              'a[href*="http"]',
-              '.website'
-            ];
-
-            let websiteElement = null;
-            for (const sel of websiteSelectors) {
-              websiteElement = element.querySelector(sel);
-              if (websiteElement && websiteElement.href && !websiteElement.href.includes('yellowpages.com')) {
+            // get website
+            const websiteEls = element.querySelectorAll("a");
+            let website = "";
+            // check links within the specific result element
+            for (let link of websiteEls) {
+              const href = link.getAttribute("href");
+              // check for valid website links
+              if (
+                href &&
+                !href.includes("yellowpages.com") &&
+                !href.includes("javascript:") &&
+                !href.startsWith("tel:") &&
+                !href.startsWith("#") &&
+                (href.startsWith("http") || href.startsWith("https")) &&
+                href.split("/").filter(Boolean).length > 1
+              ) {
+                website = href;
                 break;
               }
-              websiteElement = null;
             }
-            business.website = websiteElement ? websiteElement.href : '';
+            business.website = website;
 
             // Only add if we have essential information
             if (business.name && (business.phone || (business.address && business.address.city))) {
@@ -468,7 +473,9 @@ class YellowPagesPuppeteerScraper {
         streetAddress: business.address?.streetAddress || '',
         city: business.address?.city || '',
         state: business.address?.state || '',
-        zipCode: business.address?.zipCode || ''
+        zipCode: business.address?.zipCode || '',
+        aptUnit: business.address?.aptUnit || '',
+        fullAddress: business.fullAddress || ''
       };
     });
   }
