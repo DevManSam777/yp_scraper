@@ -39,7 +39,8 @@ let currentSearchStatus = {
   isRunning: false,
   currentFile: null,
   query: '',
-  location: ''
+  location: '',
+  format: 'json' // Track the format chosen by user
 };
 
 // Current results
@@ -65,6 +66,8 @@ function showTab(tabId) {
 
   // Load content for files tab if selected
   if (tabId === "filesTab") {
+    // Set the dropdown to the format from the last search
+    fileFormatFilter.value = currentSearchStatus.format;
     loadFiles();
   }
 }
@@ -158,6 +161,7 @@ searchForm.addEventListener("submit", async (e) => {
     if (data.success) {
       // Search started successfully
       currentSearchStatus.isRunning = true;
+      currentSearchStatus.format = searchData.saveFormat; // Store the chosen format
 
       // Start polling for status updates
       startStatusPolling();
